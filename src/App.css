@@ -68,12 +68,13 @@ label {
   font-size: 14px;
 }
 
-input, textarea {
+input, textarea, select {
   width: 100%;
-  padding: 8px 12px;
+  padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 16px;
+  box-sizing: border-box;
 }
 
 textarea {
@@ -147,10 +148,6 @@ button:hover {
 
 .form-group.tax-rate select {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
 }
 
 .remove-item {

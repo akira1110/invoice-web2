@@ -6,6 +6,184 @@ import './App.css';
 // 日本語フォントのサポート
 import 'jspdf-autotable';
 
+// 請求書テンプレート
+const invoiceTemplates = {
+  // 標準テンプレート
+  standard: (invoice) => `
+    <div class="invoice-preview" style="font-family: sans-serif; padding: 30px; max-width: 800px; margin: 0 auto;">
+      <h1 style="text-align: center; margin-bottom: 20px; font-size: 24px;">請求書</h1>
+      
+      <div style="margin-bottom: 20px;">
+        <p><strong>請求書番号:</strong> ${invoice.invoiceNumber}</p>
+        <p><strong>発行日:</strong> ${invoice.issueDate}</p>
+        <p><strong>支払期限:</strong> ${invoice.dueDate}</p>
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+        <div style="width: 45%; margin-right: 5%;">
+          <h3 style="margin-bottom: 10px;">請求元:</h3>
+          <p>${invoice.company.name}</p>
+          <p>〒${invoice.company.postalCode}</p>
+          <p>${invoice.company.address}</p>
+          <p>電話: ${invoice.company.phone}</p>
+          <p>メール: ${invoice.company.email}</p>
+        </div>
+        <div style="width: 45%;">
+          <h3 style="margin-bottom: 10px;">請求先:</h3>
+          <p>${invoice.client.name}</p>
+          <p>〒${invoice.client.postalCode}</p>
+          <p>${invoice.client.address}</p>
+        </div>
+      </div>
+      
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+        <thead>
+          <tr style="border-bottom: 2px solid #ddd;">
+            <th style="text-align: left; padding: 10px;">品目</th>
+            <th style="text-align: right; padding: 10px;">数量</th>
+            <th style="text-align: right; padding: 10px;">単価</th>
+            <th style="text-align: right; padding: 10px;">税率</th>
+            <th style="text-align: right; padding: 10px;">金額</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${invoice.items.map(item => `
+            <tr style="border-bottom: 1px solid #ddd;">
+              <td style="padding: 10px;">${item.description}</td>
+              <td style="text-align: right; padding: 10px;">${item.quantity}</td>
+              <td style="text-align: right; padding: 10px;">¥${parseFloat(item.unitPrice).toLocaleString()}</td>
+              <td style="text-align: right; padding: 10px;">${item.taxRate}%</td>
+              <td style="text-align: right; padding: 10px;">¥${parseFloat(item.amount).toLocaleString()}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      
+      <div style="margin-left: auto; width: 250px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+          <p><strong>小計:</strong></p>
+          <p>¥${invoice.subtotal.toLocaleString()}</p>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+          <p><strong>消費税:</strong></p>
+          <p>¥${invoice.taxAmount.toLocaleString()}</p>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 10px; border-top: 2px solid #ddd; padding-top: 10px;">
+          <p>合計金額:</p>
+          <p>¥${invoice.total.toLocaleString()}</p>
+        </div>
+      </div>
+      
+      <div style="margin-top: 30px;">
+        <h3 style="margin-bottom: 10px;">振込先情報:</h3>
+        <p><strong>銀行名:</strong> ${invoice.bankInfo.bankName}</p>
+        <p><strong>支店名:</strong> ${invoice.bankInfo.branchName}</p>
+        <p><strong>口座種類:</strong> ${invoice.bankInfo.accountType}</p>
+        <p><strong>口座番号:</strong> ${invoice.bankInfo.accountNumber}</p>
+        <p><strong>口座名義:</strong> ${invoice.bankInfo.accountName}</p>
+      </div>
+      
+      ${invoice.notes ? `
+        <div style="margin-top: 40px;">
+          <h3 style="margin-bottom: 10px;">備考:</h3>
+          <p>${invoice.notes}</p>
+        </div>
+      ` : ''}
+    </div>
+  `,
+  
+  // モダンテンプレート
+  modern: (invoice) => `
+    <div class="invoice-preview" style="font-family: 'Helvetica', sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; color: #333; background-color: #f9f9f9;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #3498db;">
+        <h1 style="font-size: 28px; color: #3498db; margin: 0;">請求書</h1>
+        <div style="text-align: right;">
+          <p style="margin: 5px 0; font-size: 16px;"><strong>請求書番号:</strong> #${invoice.invoiceNumber}</p>
+          <p style="margin: 5px 0; font-size: 16px;"><strong>発行日:</strong> ${invoice.issueDate}</p>
+          <p style="margin: 5px 0; font-size: 16px;"><strong>支払期限:</strong> ${invoice.dueDate}</p>
+        </div>
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
+        <div style="width: 45%; padding: 20px; background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 5px;">
+          <h3 style="color: #3498db; margin-top: 0; margin-bottom: 15px; font-size: 18px;">請求元</h3>
+          <p style="margin: 5px 0; font-size: 15px;"><strong>${invoice.company.name}</strong></p>
+          <p style="margin: 5px 0; font-size: 15px;">〒${invoice.company.postalCode}</p>
+          <p style="margin: 5px 0; font-size: 15px;">${invoice.company.address}</p>
+          <p style="margin: 5px 0; font-size: 15px;">電話: ${invoice.company.phone}</p>
+          <p style="margin: 5px 0; font-size: 15px;">メール: ${invoice.company.email}</p>
+        </div>
+        <div style="width: 45%; padding: 20px; background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 5px;">
+          <h3 style="color: #3498db; margin-top: 0; margin-bottom: 15px; font-size: 18px;">請求先</h3>
+          <p style="margin: 5px 0; font-size: 15px;"><strong>${invoice.client.name}</strong></p>
+          <p style="margin: 5px 0; font-size: 15px;">〒${invoice.client.postalCode}</p>
+          <p style="margin: 5px 0; font-size: 15px;">${invoice.client.address}</p>
+        </div>
+      </div>
+      
+      <div style="background-color: white; padding: 20px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 5px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background-color: #3498db; color: white;">
+              <th style="text-align: left; padding: 12px; border-radius: 5px 0 0 0;">品目</th>
+              <th style="text-align: right; padding: 12px;">数量</th>
+              <th style="text-align: right; padding: 12px;">単価</th>
+              <th style="text-align: right; padding: 12px;">税率</th>
+              <th style="text-align: right; padding: 12px; border-radius: 0 5px 0 0;">金額</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${invoice.items.map((item, index) => `
+              <tr style="border-bottom: ${index === invoice.items.length - 1 ? 'none' : '1px solid #eee'};">
+                <td style="padding: 12px;">${item.description}</td>
+                <td style="text-align: right; padding: 12px;">${item.quantity}</td>
+                <td style="text-align: right; padding: 12px;">¥${parseFloat(item.unitPrice).toLocaleString()}</td>
+                <td style="text-align: right; padding: 12px;">${item.taxRate}%</td>
+                <td style="text-align: right; padding: 12px;">¥${parseFloat(item.amount).toLocaleString()}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      
+      <div style="display: flex; justify-content: flex-end;">
+        <div style="width: 300px; padding: 20px; background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 5px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <p style="margin: 5px 0;"><strong>小計:</strong></p>
+            <p style="margin: 5px 0;">¥${invoice.subtotal.toLocaleString()}</p>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+            <p style="margin: 5px 0;"><strong>消費税:</strong></p>
+            <p style="margin: 5px 0;">¥${invoice.taxAmount.toLocaleString()}</p>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #3498db;">
+            <p style="margin: 5px 0;">合計金額:</p>
+            <p style="margin: 5px 0;">¥${invoice.total.toLocaleString()}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div style="margin-top: 30px; padding: 20px; background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 5px;">
+        <h3 style="color: #3498db; margin-top: 0; margin-bottom: 15px; font-size: 18px;">振込先情報</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <p style="margin: 5px 0; font-size: 15px;"><strong>銀行名:</strong> ${invoice.bankInfo.bankName}</p>
+          <p style="margin: 5px 0; font-size: 15px;"><strong>支店名:</strong> ${invoice.bankInfo.branchName}</p>
+          <p style="margin: 5px 0; font-size: 15px;"><strong>口座種類:</strong> ${invoice.bankInfo.accountType}</p>
+          <p style="margin: 5px 0; font-size: 15px;"><strong>口座番号:</strong> ${invoice.bankInfo.accountNumber}</p>
+          <p style="margin: 5px 0; font-size: 15px;"><strong>口座名義:</strong> ${invoice.bankInfo.accountName}</p>
+        </div>
+      </div>
+      
+      ${invoice.notes ? `
+        <div style="margin-top: 30px; padding: 20px; background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 5px;">
+          <h3 style="color: #3498db; margin-top: 0; margin-bottom: 15px; font-size: 18px;">備考</h3>
+          <p style="margin: 5px 0; font-size: 15px;">${invoice.notes}</p>
+        </div>
+      ` : ''}
+    </div>
+  `
+};
+
 function App() {
   const [invoice, setInvoice] = useState({
     invoiceNumber: '',
@@ -37,7 +215,8 @@ function App() {
     taxAmount: 0,
     total: 0,
     notes: '振込手数料はご負担願います。',
-    sendToEmail: ''
+    sendToEmail: '',
+    template: 'standard'
   });
 
   const invoiceRef = useRef(null);
@@ -178,6 +357,49 @@ function App() {
     });
   };
 
+  const generatePDF = () => {
+    // 選択されたテンプレートを使用
+    const templateHTML = invoiceTemplates[invoice.template](invoice);
+    
+    // プレビュー用要素を取得
+    const element = document.createElement('div');
+    element.innerHTML = templateHTML;
+    
+    document.body.appendChild(element);
+    
+    // HTML要素をキャンバスに変換
+    html2canvas(element).then(canvas => {
+      document.body.removeChild(element);
+      
+      // キャンバスをPDFに変換
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const imgWidth = 210; // A4サイズの幅
+      const pageHeight = 297; // A4サイズの高さ
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      
+      // 複数ページに対応
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      
+      pdf.save('請求書.pdf');
+    });
+  };
+
   const sendPdfByEmail = async () => {
     if (!invoice.sendToEmail) {
       alert('送信先メールアドレスを入力してください');
@@ -188,90 +410,12 @@ function App() {
       // 送信中メッセージを表示
       alert('メールを送信準備中です。しばらくお待ちください...');
       
-      // プレビュー用要素を取得（generatePDFと同じ処理）
+      // 選択されたテンプレートを使用
+      const templateHTML = invoiceTemplates[invoice.template](invoice);
+      
+      // プレビュー用要素を取得
       const element = document.createElement('div');
-      element.innerHTML = `
-        <div class="invoice-preview" style="font-family: sans-serif; padding: 30px; max-width: 800px; margin: 0 auto;">
-          <h1 style="text-align: center; margin-bottom: 20px; font-size: 24px;">請求書</h1>
-          
-          <div style="margin-bottom: 20px;">
-            <p><strong>請求書番号:</strong> ${invoice.invoiceNumber}</p>
-            <p><strong>発行日:</strong> ${invoice.issueDate}</p>
-            <p><strong>支払期限:</strong> ${invoice.dueDate}</p>
-          </div>
-          
-          <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
-            <div style="width: 45%; margin-right: 5%;">
-              <h3 style="margin-bottom: 10px;">請求元:</h3>
-              <p>${invoice.company.name}</p>
-              <p>〒${invoice.company.postalCode}</p>
-              <p>${invoice.company.address}</p>
-              <p>電話: ${invoice.company.phone}</p>
-              <p>メール: ${invoice.company.email}</p>
-            </div>
-            <div style="width: 45%;">
-              <h3 style="margin-bottom: 10px;">請求先:</h3>
-              <p>${invoice.client.name}</p>
-              <p>〒${invoice.client.postalCode}</p>
-              <p>${invoice.client.address}</p>
-            </div>
-          </div>
-          
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
-            <thead>
-              <tr style="border-bottom: 2px solid #ddd;">
-                <th style="text-align: left; padding: 10px;">品目</th>
-                <th style="text-align: right; padding: 10px;">数量</th>
-                <th style="text-align: right; padding: 10px;">単価</th>
-                <th style="text-align: right; padding: 10px;">税率</th>
-                <th style="text-align: right; padding: 10px;">金額</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${invoice.items.map(item => `
-                <tr style="border-bottom: 1px solid #ddd;">
-                  <td style="padding: 10px;">${item.description}</td>
-                  <td style="text-align: right; padding: 10px;">${item.quantity}</td>
-                  <td style="text-align: right; padding: 10px;">¥${parseFloat(item.unitPrice).toLocaleString()}</td>
-                  <td style="text-align: right; padding: 10px;">${item.taxRate}%</td>
-                  <td style="text-align: right; padding: 10px;">¥${parseFloat(item.amount).toLocaleString()}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-          
-          <div style="margin-left: auto; width: 250px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-              <p><strong>小計:</strong></p>
-              <p>¥${invoice.subtotal.toLocaleString()}</p>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-              <p><strong>消費税:</strong></p>
-              <p>¥${invoice.taxAmount.toLocaleString()}</p>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 10px; border-top: 2px solid #ddd; padding-top: 10px;">
-              <p>合計金額:</p>
-              <p>¥${invoice.total.toLocaleString()}</p>
-            </div>
-          </div>
-          
-          <div style="margin-top: 30px;">
-            <h3 style="margin-bottom: 10px;">振込先情報:</h3>
-            <p><strong>銀行名:</strong> ${invoice.bankInfo.bankName}</p>
-            <p><strong>支店名:</strong> ${invoice.bankInfo.branchName}</p>
-            <p><strong>口座種類:</strong> ${invoice.bankInfo.accountType}</p>
-            <p><strong>口座番号:</strong> ${invoice.bankInfo.accountNumber}</p>
-            <p><strong>口座名義:</strong> ${invoice.bankInfo.accountName}</p>
-          </div>
-          
-          ${invoice.notes ? `
-            <div style="margin-top: 40px;">
-              <h3 style="margin-bottom: 10px;">備考:</h3>
-              <p>${invoice.notes}</p>
-            </div>
-          ` : ''}
-        </div>
-      `;
+      element.innerHTML = templateHTML;
       
       document.body.appendChild(element);
       
@@ -334,127 +478,6 @@ ${invoice.company.name}`
       console.error('メール送信中にエラーが発生しました:', error);
       alert(`メール送信中にエラーが発生しました: ${error.message}`);
     }
-  };
-
-  const generatePDF = () => {
-    // プレビュー用要素を取得
-    const element = document.createElement('div');
-    element.innerHTML = `
-      <div class="invoice-preview" style="font-family: sans-serif; padding: 30px; max-width: 800px; margin: 0 auto;">
-        <h1 style="text-align: center; margin-bottom: 20px; font-size: 24px;">請求書</h1>
-        
-        <div style="margin-bottom: 20px;">
-          <p><strong>請求書番号:</strong> ${invoice.invoiceNumber}</p>
-          <p><strong>発行日:</strong> ${invoice.issueDate}</p>
-          <p><strong>支払期限:</strong> ${invoice.dueDate}</p>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
-          <div style="width: 45%; margin-right: 5%;">
-            <h3 style="margin-bottom: 10px;">請求元:</h3>
-            <p>${invoice.company.name}</p>
-            <p>〒${invoice.company.postalCode}</p>
-            <p>${invoice.company.address}</p>
-            <p>電話: ${invoice.company.phone}</p>
-            <p>メール: ${invoice.company.email}</p>
-          </div>
-          <div style="width: 45%;">
-            <h3 style="margin-bottom: 10px;">請求先:</h3>
-            <p>${invoice.client.name}</p>
-            <p>〒${invoice.client.postalCode}</p>
-            <p>${invoice.client.address}</p>
-          </div>
-        </div>
-        
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
-          <thead>
-            <tr style="border-bottom: 2px solid #ddd;">
-              <th style="text-align: left; padding: 10px;">品目</th>
-              <th style="text-align: right; padding: 10px;">数量</th>
-              <th style="text-align: right; padding: 10px;">単価</th>
-              <th style="text-align: right; padding: 10px;">税率</th>
-              <th style="text-align: right; padding: 10px;">金額</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${invoice.items.map(item => `
-              <tr style="border-bottom: 1px solid #ddd;">
-                <td style="padding: 10px;">${item.description}</td>
-                <td style="text-align: right; padding: 10px;">${item.quantity}</td>
-                <td style="text-align: right; padding: 10px;">¥${parseFloat(item.unitPrice).toLocaleString()}</td>
-                <td style="text-align: right; padding: 10px;">${item.taxRate}%</td>
-                <td style="text-align: right; padding: 10px;">¥${parseFloat(item.amount).toLocaleString()}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-        
-        <div style="margin-left: auto; width: 250px;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <p><strong>小計:</strong></p>
-            <p>¥${invoice.subtotal.toLocaleString()}</p>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <p><strong>消費税:</strong></p>
-            <p>¥${invoice.taxAmount.toLocaleString()}</p>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 10px; border-top: 2px solid #ddd; padding-top: 10px;">
-            <p>合計金額:</p>
-            <p>¥${invoice.total.toLocaleString()}</p>
-          </div>
-        </div>
-        
-        <div style="margin-top: 30px;">
-          <h3 style="margin-bottom: 10px;">振込先情報:</h3>
-          <p><strong>銀行名:</strong> ${invoice.bankInfo.bankName}</p>
-          <p><strong>支店名:</strong> ${invoice.bankInfo.branchName}</p>
-          <p><strong>口座種類:</strong> ${invoice.bankInfo.accountType}</p>
-          <p><strong>口座番号:</strong> ${invoice.bankInfo.accountNumber}</p>
-          <p><strong>口座名義:</strong> ${invoice.bankInfo.accountName}</p>
-        </div>
-        
-        ${invoice.notes ? `
-          <div style="margin-top: 40px;">
-            <h3 style="margin-bottom: 10px;">備考:</h3>
-            <p>${invoice.notes}</p>
-          </div>
-        ` : ''}
-      </div>
-    `;
-    
-    document.body.appendChild(element);
-    
-    // HTML要素をキャンバスに変換
-    html2canvas(element).then(canvas => {
-      document.body.removeChild(element);
-      
-      // キャンバスをPDFに変換
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      const imgWidth = 210; // A4サイズの幅
-      const pageHeight = 297; // A4サイズの高さ
-      const imgHeight = canvas.height * imgWidth / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-      
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-      
-      // 複数ページに対応
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-      
-      pdf.save('請求書.pdf');
-    });
   };
 
   return (
@@ -751,6 +774,18 @@ ${invoice.company.name}`
               onChange={handleInputChange}
               placeholder="example@example.com"
             />
+          </div>
+          
+          <div className="form-group">
+            <label>テンプレート選択</label>
+            <select
+              name="template"
+              value={invoice.template}
+              onChange={handleInputChange}
+            >
+              <option value="standard">標準</option>
+              <option value="modern">モダン</option>
+            </select>
           </div>
           
           <div className="actions">
