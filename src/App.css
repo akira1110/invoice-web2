@@ -233,3 +233,25 @@ button:hover {
     margin-top: 10px;
   }
 }
+
+.footer-notice {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  text-align: center;
+  font-size: 14px;
+  color: #777;
+}
+
+.footer-notice p {
+  margin-bottom: 8px;
+}
+
+.footer-notice a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.footer-notice a:hover {
+  text-decoration: underline;
+}

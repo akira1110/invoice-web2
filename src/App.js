@@ -798,6 +798,10 @@ ${invoice.company.name}`
           </div>
         </div>
       </div>
+      <div className="footer-notice">
+        <p>※ このツールで入力された情報はサーバーに一切保存されません。</p>
+        <p>※ ソースコードは <a href="https://github.com/akira1110/invoice-web2" target="_blank" rel="noopener noreferrer">GitHub</a> で公開しています。</p>
+      </div>
     </div>
   );
 }
