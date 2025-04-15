@@ -31,10 +31,9 @@ function App() {
       accountName: ''
     },
     items: [
-      { description: '', quantity: 1, unitPrice: 0, amount: 0 }
+      { description: '', quantity: 1, unitPrice: 0, amount: 0, taxRate: 10 }
     ],
     subtotal: 0,
-    taxRate: 10,
     taxAmount: 0,
     total: 0,
     notes: '振込手数料はご負担願います。',
@@ -86,15 +85,22 @@ function App() {
     };
     
     // 金額の自動計算
-    if (name === 'quantity' || name === 'unitPrice') {
-      const quantity = name === 'quantity' ? parseFloat(value) || 0 : parseFloat(items[index].quantity) || 0;
-      const unitPrice = name === 'unitPrice' ? parseFloat(value) || 0 : parseFloat(items[index].unitPrice) || 0;
+    if (name === 'quantity' || name === 'unitPrice' || name === 'taxRate') {
+      const quantity = parseFloat(items[index].quantity) || 0;
+      const unitPrice = parseFloat(items[index].unitPrice) || 0;
       items[index].amount = quantity * unitPrice;
     }
     
     // 小計、消費税、合計金額の計算
     const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
-    const taxAmount = Math.round(subtotal * (invoice.taxRate / 100) * 10) / 10; // 小数点第1位で四捨五入
+    
+    // 各品目ごとの消費税を計算
+    const taxAmount = items.reduce((sum, item) => {
+      const itemTaxRate = parseFloat(item.taxRate) || 0;
+      const itemAmount = parseFloat(item.amount) || 0;
+      return sum + Math.round(itemAmount * (itemTaxRate / 100) * 10) / 10;
+    }, 0);
+    
     const total = subtotal + taxAmount;
     
     setInvoice({
@@ -109,7 +115,7 @@ function App() {
   const addItem = () => {
     setInvoice({
       ...invoice,
-      items: [...invoice.items, { description: '', quantity: 1, unitPrice: 0, amount: 0 }]
+      items: [...invoice.items, { description: '', quantity: 1, unitPrice: 0, amount: 0, taxRate: 10 }]
     });
   };
 
@@ -119,26 +125,20 @@ function App() {
     
     // 小計、消費税、合計金額の再計算
     const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
-    const taxAmount = Math.round(subtotal * (invoice.taxRate / 100) * 10) / 10; // 小数点第1位で四捨五入
+    
+    // 各品目ごとの消費税を計算
+    const taxAmount = items.reduce((sum, item) => {
+      const itemTaxRate = parseFloat(item.taxRate) || 0;
+      const itemAmount = parseFloat(item.amount) || 0;
+      return sum + Math.round(itemAmount * (itemTaxRate / 100) * 10) / 10;
+    }, 0);
+    
     const total = subtotal + taxAmount;
     
     setInvoice({
       ...invoice,
       items,
       subtotal,
-      taxAmount,
-      total
-    });
-  };
-
-  const handleTaxRateChange = (e) => {
-    const taxRate = parseFloat(e.target.value) || 0;
-    const taxAmount = Math.round(invoice.subtotal * (taxRate / 100) * 10) / 10; // 小数点第1位で四捨五入
-    const total = invoice.subtotal + taxAmount;
-    
-    setInvoice({
-      ...invoice,
-      taxRate,
       taxAmount,
       total
     });
@@ -197,6 +197,7 @@ function App() {
                 <th style="text-align: left; padding: 10px;">品目</th>
                 <th style="text-align: right; padding: 10px;">数量</th>
                 <th style="text-align: right; padding: 10px;">単価</th>
+                <th style="text-align: right; padding: 10px;">税率</th>
                 <th style="text-align: right; padding: 10px;">金額</th>
               </tr>
             </thead>
@@ -206,6 +207,7 @@ function App() {
                   <td style="padding: 10px;">${item.description}</td>
                   <td style="text-align: right; padding: 10px;">${item.quantity}</td>
                   <td style="text-align: right; padding: 10px;">¥${parseFloat(item.unitPrice).toLocaleString()}</td>
+                  <td style="text-align: right; padding: 10px;">${item.taxRate}%</td>
                   <td style="text-align: right; padding: 10px;">¥${parseFloat(item.amount).toLocaleString()}</td>
                 </tr>
               `).join('')}
@@ -218,7 +220,7 @@ function App() {
               <p>¥${invoice.subtotal.toLocaleString()}</p>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-              <p><strong>消費税 (${invoice.taxRate}%):</strong></p>
+              <p><strong>消費税:</strong></p>
               <p>¥${invoice.taxAmount.toLocaleString()}</p>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 10px; border-top: 2px solid #ddd; padding-top: 10px;">
@@ -344,6 +346,7 @@ ${invoice.company.name}`
               <th style="text-align: left; padding: 10px;">品目</th>
               <th style="text-align: right; padding: 10px;">数量</th>
               <th style="text-align: right; padding: 10px;">単価</th>
+              <th style="text-align: right; padding: 10px;">税率</th>
               <th style="text-align: right; padding: 10px;">金額</th>
             </tr>
           </thead>
@@ -353,6 +356,7 @@ ${invoice.company.name}`
                 <td style="padding: 10px;">${item.description}</td>
                 <td style="text-align: right; padding: 10px;">${item.quantity}</td>
                 <td style="text-align: right; padding: 10px;">¥${parseFloat(item.unitPrice).toLocaleString()}</td>
+                <td style="text-align: right; padding: 10px;">${item.taxRate}%</td>
                 <td style="text-align: right; padding: 10px;">¥${parseFloat(item.amount).toLocaleString()}</td>
               </tr>
             `).join('')}
@@ -365,7 +369,7 @@ ${invoice.company.name}`
             <p>¥${invoice.subtotal.toLocaleString()}</p>
           </div>
           <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <p><strong>消費税 (${invoice.taxRate}%):</strong></p>
+            <p><strong>消費税:</strong></p>
             <p>¥${invoice.taxAmount.toLocaleString()}</p>
           </div>
           <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 10px; border-top: 2px solid #ddd; padding-top: 10px;">
@@ -617,6 +621,17 @@ ${invoice.company.name}`
                   onChange={(e) => handleItemChange(index, e)} 
                 />
               </div>
+              <div className="form-group tax-rate">
+                <label>税率</label>
+                <select
+                  name="taxRate"
+                  value={item.taxRate}
+                  onChange={(e) => handleItemChange(index, e)}
+                >
+                  <option value="8">8%</option>
+                  <option value="10">10%</option>
+                </select>
+              </div>
               <div className="form-group amount">
                 <label>金額</label>
                 <input 
@@ -651,15 +666,6 @@ ${invoice.company.name}`
                   name="subtotal" 
                   value={invoice.subtotal} 
                   readOnly 
-                />
-              </div>
-              <div className="form-group">
-                <label>消費税率 (%)</label>
-                <input 
-                  type="number" 
-                  name="taxRate" 
-                  value={invoice.taxRate} 
-                  onChange={handleTaxRateChange} 
                 />
               </div>
               <div className="form-group">

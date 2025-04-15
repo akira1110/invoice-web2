@@ -98,17 +98,29 @@ button:hover {
 
 .item-row {
   display: flex;
+  flex-wrap: wrap;
   margin-bottom: 10px;
   align-items: flex-end;
+  gap: 10px;
 }
 
-.description {
-  flex: 4;
+.form-group.description {
+  flex: 3;
 }
 
-.quantity, .unit-price, .amount {
+.form-group.quantity,
+.form-group.unit-price,
+.form-group.tax-rate,
+.form-group.amount {
   flex: 1;
-  min-width: 100px;
+}
+
+.form-group.tax-rate select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
 }
 
 .remove-item {
