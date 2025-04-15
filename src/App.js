@@ -405,7 +405,42 @@ function App() {
     });
   };
 
+  const validateRequiredFields = () => {
+    const missingFields = [];
+    
+    // 請求元の会社名をチェック
+    if (!invoice.company.name.trim()) {
+      missingFields.push('請求元の会社名');
+    }
+    
+    // 請求先の会社名/個人名をチェック
+    if (!invoice.client.name.trim()) {
+      missingFields.push('請求先の会社名/個人名');
+    }
+    
+    // 品目の必須フィールドをチェック
+    const invalidItems = invoice.items.filter(
+      item => !item.description.trim() || !item.quantity || !item.unitPrice
+    );
+    
+    if (invalidItems.length > 0) {
+      missingFields.push('品目情報（品目名、数量、単価）');
+    }
+    
+    return missingFields;
+  };
+
   const generatePDF = () => {
+    // 必須項目のバリデーション
+    const missingFields = validateRequiredFields();
+    
+    if (missingFields.length > 0) {
+      const fieldsList = missingFields.join('、');
+      if (!window.confirm(`以下の必須項目が入力されていませんが、続行しますか？\n\n${fieldsList}`)) {
+        return; // キャンセルされた場合は処理を中止
+      }
+    }
+    
     // 選択されたテンプレートを使用
     const templateHTML = invoiceTemplates[invoice.template](invoice);
     
@@ -453,9 +488,20 @@ function App() {
   };
 
   const sendPdfByEmail = async () => {
+    // メールアドレスのチェック
     if (!invoice.sendToEmail) {
       alert('送信先メールアドレスを入力してください');
       return;
+    }
+    
+    // 必須項目のバリデーション
+    const missingFields = validateRequiredFields();
+    
+    if (missingFields.length > 0) {
+      const fieldsList = missingFields.join('、');
+      if (!window.confirm(`以下の必須項目が入力されていませんが、続行しますか？\n\n${fieldsList}`)) {
+        return; // キャンセルされた場合は処理を中止
+      }
     }
     
     try {
@@ -546,7 +592,7 @@ ${invoice.company.name}`
           <h2>請求書情報</h2>
           <div className="form-row">
             <div className="form-group">
-              <label>請求書番号</label>
+              <label>請求書番号 <span className="optional-label">任意</span></label>
               <input 
                 type="text" 
                 name="invoiceNumber" 
@@ -555,7 +601,7 @@ ${invoice.company.name}`
               />
             </div>
             <div className="form-group">
-              <label>発行日</label>
+              <label>発行日 <span className="optional-label">任意</span></label>
               <input 
                 type="date" 
                 name="issueDate" 
@@ -564,7 +610,7 @@ ${invoice.company.name}`
               />
             </div>
             <div className="form-group">
-              <label>支払期限</label>
+              <label>支払期限 <span className="optional-label">任意</span></label>
               <input 
                 type="date" 
                 name="dueDate" 
@@ -576,16 +622,17 @@ ${invoice.company.name}`
           
           <h2>請求元情報</h2>
           <div className="form-group">
-            <label>会社名</label>
+            <label>会社名 <span className="required-label">必須</span></label>
             <input 
               type="text" 
               name="name" 
               value={invoice.company.name} 
               onChange={handleCompanyChange} 
+              required
             />
           </div>
           <div className="form-group">
-            <label>郵便番号</label>
+            <label>郵便番号 <span className="optional-label">任意</span></label>
             <input 
               type="text" 
               name="postalCode" 
@@ -594,7 +641,7 @@ ${invoice.company.name}`
             />
           </div>
           <div className="form-group">
-            <label>住所</label>
+            <label>住所 <span className="optional-label">任意</span></label>
             <textarea 
               name="address" 
               value={invoice.company.address} 
@@ -603,7 +650,7 @@ ${invoice.company.name}`
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label>電話番号</label>
+              <label>電話番号 <span className="optional-label">任意</span></label>
               <input 
                 type="text" 
                 name="phone" 
@@ -612,7 +659,7 @@ ${invoice.company.name}`
               />
             </div>
             <div className="form-group">
-              <label>メール</label>
+              <label>メール <span className="optional-label">任意</span></label>
               <input 
                 type="email" 
                 name="email" 
@@ -624,16 +671,17 @@ ${invoice.company.name}`
           
           <h2>請求先情報</h2>
           <div className="form-group">
-            <label>会社名/個人名</label>
+            <label>会社名/個人名 <span className="required-label">必須</span></label>
             <input 
               type="text" 
               name="name" 
               value={invoice.client.name} 
               onChange={handleClientChange} 
+              required
             />
           </div>
           <div className="form-group">
-            <label>郵便番号</label>
+            <label>郵便番号 <span className="optional-label">任意</span></label>
             <input 
               type="text" 
               name="postalCode" 
@@ -642,7 +690,7 @@ ${invoice.company.name}`
             />
           </div>
           <div className="form-group">
-            <label>住所</label>
+            <label>住所 <span className="optional-label">任意</span></label>
             <textarea 
               name="address" 
               value={invoice.client.address} 
@@ -652,7 +700,7 @@ ${invoice.company.name}`
           
           <h2>銀行振込先情報</h2>
           <div className="form-group">
-            <label>銀行名</label>
+            <label>銀行名 <span className="optional-label">任意</span></label>
             <input 
               type="text" 
               name="bankName" 
@@ -661,7 +709,7 @@ ${invoice.company.name}`
             />
           </div>
           <div className="form-group">
-            <label>支店名</label>
+            <label>支店名 <span className="optional-label">任意</span></label>
             <input 
               type="text" 
               name="branchName" 
@@ -670,7 +718,7 @@ ${invoice.company.name}`
             />
           </div>
           <div className="form-group">
-            <label>口座種類</label>
+            <label>口座種類 <span className="optional-label">任意</span></label>
             <input 
               type="text" 
               name="accountType" 
@@ -679,7 +727,7 @@ ${invoice.company.name}`
             />
           </div>
           <div className="form-group">
-            <label>口座番号</label>
+            <label>口座番号 <span className="optional-label">任意</span></label>
             <input 
               type="text" 
               name="accountNumber" 
@@ -688,7 +736,7 @@ ${invoice.company.name}`
             />
           </div>
           <div className="form-group">
-            <label>口座名義</label>
+            <label>口座名義 <span className="optional-label">任意</span></label>
             <input 
               type="text" 
               name="accountName" 
@@ -719,38 +767,42 @@ ${invoice.company.name}`
                 </button>
               </div>
               <div className="form-group description">
-                <label>品目</label>
+                <label>品目 <span className="required-label">必須</span></label>
                 <input 
                   type="text" 
                   name="description" 
                   value={item.description} 
                   onChange={(e) => handleItemChange(index, e)} 
+                  required
                 />
               </div>
               <div className="form-group quantity">
-                <label>数量</label>
+                <label>数量 <span className="required-label">必須</span></label>
                 <input 
                   type="number" 
                   name="quantity" 
                   value={item.quantity} 
                   onChange={(e) => handleItemChange(index, e)} 
+                  required
                 />
               </div>
               <div className="form-group unit-price">
-                <label>単価</label>
+                <label>単価 <span className="required-label">必須</span></label>
                 <input 
                   type="number" 
                   name="unitPrice" 
                   value={item.unitPrice} 
                   onChange={(e) => handleItemChange(index, e)} 
+                  required
                 />
               </div>
               <div className="form-group tax-rate">
-                <label>税率</label>
+                <label>税率 <span className="required-label">必須</span></label>
                 <select
                   name="taxRate"
                   value={item.taxRate}
                   onChange={(e) => handleItemChange(index, e)}
+                  required
                 >
                   <option value="8">8%</option>
                   <option value="10">10%</option>
@@ -814,7 +866,7 @@ ${invoice.company.name}`
           </div>
           
           <div className="form-group">
-            <label>備考</label>
+            <label>備考 <span className="optional-label">任意</span></label>
             <textarea 
               name="notes" 
               value={invoice.notes} 
@@ -823,7 +875,7 @@ ${invoice.company.name}`
           </div>
           
           <div className="form-group">
-            <label>メール送信先</label>
+            <label>メール送信先 <span className="optional-label">任意</span></label>
             <input
               type="email"
               name="sendToEmail"

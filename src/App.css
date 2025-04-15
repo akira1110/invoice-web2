@@ -255,3 +255,24 @@ button:hover {
 .footer-notice a:hover {
   text-decoration: underline;
 }
+
+/* 必須・任意ラベルのスタイル */
+.required-label {
+  font-size: 0.7em;
+  background-color: #ff4d4d;
+  color: white;
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin-left: 5px;
+  font-weight: normal;
+}
+
+.optional-label {
+  font-size: 0.7em;
+  background-color: #aaaaaa;
+  color: white;
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin-left: 5px;
+  font-weight: normal;
+}
