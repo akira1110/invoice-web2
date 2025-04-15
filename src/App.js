@@ -144,6 +144,32 @@ function App() {
     });
   };
 
+  const moveItemUp = (index) => {
+    if (index === 0) return; // 最初の項目は上に移動できない
+    
+    const items = [...invoice.items];
+    // 現在の項目と1つ上の項目を入れ替える
+    [items[index], items[index - 1]] = [items[index - 1], items[index]];
+    
+    setInvoice({
+      ...invoice,
+      items
+    });
+  };
+
+  const moveItemDown = (index) => {
+    if (index === invoice.items.length - 1) return; // 最後の項目は下に移動できない
+    
+    const items = [...invoice.items];
+    // 現在の項目と1つ下の項目を入れ替える
+    [items[index], items[index + 1]] = [items[index + 1], items[index]];
+    
+    setInvoice({
+      ...invoice,
+      items
+    });
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setInvoice({
@@ -594,6 +620,24 @@ ${invoice.company.name}`
           <h2>品目</h2>
           {invoice.items.map((item, index) => (
             <div className="item-row" key={index}>
+              <div className="item-controls">
+                <button
+                  type="button"
+                  className="move-item-up"
+                  onClick={() => moveItemUp(index)}
+                  disabled={index === 0}
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  className="move-item-down"
+                  onClick={() => moveItemDown(index)}
+                  disabled={index === invoice.items.length - 1}
+                >
+                  ↓
+                </button>
+              </div>
               <div className="form-group description">
                 <label>品目</label>
                 <input 

@@ -102,6 +102,36 @@ button:hover {
   margin-bottom: 10px;
   align-items: flex-end;
   gap: 10px;
+  position: relative;
+}
+
+.item-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.move-item-up,
+.move-item-down {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  background-color: #007bff;
+}
+
+.move-item-up:hover,
+.move-item-down:hover {
+  background-color: #0056b3;
+}
+
+.move-item-up:disabled,
+.move-item-down:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
 
 .form-group.description {
@@ -184,12 +214,18 @@ button:hover {
     flex-wrap: wrap;
   }
   
+  .item-controls {
+    flex-direction: row;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
   .description {
     flex: 100%;
     margin-bottom: 10px;
   }
   
-  .quantity, .unit-price, .amount {
+  .quantity, .unit-price, .tax-rate, .amount {
     flex: 1;
     min-width: 30%;
   }
