@@ -14,12 +14,21 @@ function App() {
     company: {
       name: '',
       address: '',
+      postalCode: '',
       phone: '',
       email: ''
     },
     client: {
       name: '',
-      address: ''
+      address: '',
+      postalCode: ''
+    },
+    bankInfo: {
+      bankName: '',
+      branchName: '',
+      accountType: '',
+      accountNumber: '',
+      accountName: ''
     },
     items: [
       { description: '', quantity: 1, unitPrice: 0, amount: 0 }
@@ -50,6 +59,17 @@ function App() {
       ...invoice,
       client: {
         ...invoice.client,
+        [name]: value
+      }
+    });
+  };
+
+  const handleBankInfoChange = (e) => {
+    const { name, value } = e.target;
+    setInvoice({
+      ...invoice,
+      bankInfo: {
+        ...invoice.bankInfo,
         [name]: value
       }
     });
@@ -148,6 +168,7 @@ function App() {
           <div>
             <h3 style="margin-bottom: 10px;">請求元:</h3>
             <p>${invoice.company.name}</p>
+            <p>〒${invoice.company.postalCode}</p>
             <p>${invoice.company.address}</p>
             <p>電話: ${invoice.company.phone}</p>
             <p>メール: ${invoice.company.email}</p>
@@ -155,6 +176,7 @@ function App() {
           <div>
             <h3 style="margin-bottom: 10px;">請求先:</h3>
             <p>${invoice.client.name}</p>
+            <p>〒${invoice.client.postalCode}</p>
             <p>${invoice.client.address}</p>
           </div>
         </div>
@@ -193,6 +215,15 @@ function App() {
             <p>合計金額:</p>
             <p>¥${invoice.total.toLocaleString()}</p>
           </div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+          <h3 style="margin-bottom: 10px;">振込先情報:</h3>
+          <p><strong>銀行名:</strong> ${invoice.bankInfo.bankName}</p>
+          <p><strong>支店名:</strong> ${invoice.bankInfo.branchName}</p>
+          <p><strong>口座種類:</strong> ${invoice.bankInfo.accountType}</p>
+          <p><strong>口座番号:</strong> ${invoice.bankInfo.accountNumber}</p>
+          <p><strong>口座名義:</strong> ${invoice.bankInfo.accountName}</p>
         </div>
         
         ${invoice.notes ? `
@@ -287,6 +318,15 @@ function App() {
             />
           </div>
           <div className="form-group">
+            <label>郵便番号</label>
+            <input 
+              type="text" 
+              name="postalCode" 
+              value={invoice.company.postalCode} 
+              onChange={handleCompanyChange} 
+            />
+          </div>
+          <div className="form-group">
             <label>住所</label>
             <textarea 
               name="address" 
@@ -326,12 +366,68 @@ function App() {
             />
           </div>
           <div className="form-group">
+            <label>郵便番号</label>
+            <input 
+              type="text" 
+              name="postalCode" 
+              value={invoice.client.postalCode} 
+              onChange={handleClientChange} 
+            />
+          </div>
+          <div className="form-group">
             <label>住所</label>
             <textarea 
               name="address" 
               value={invoice.client.address} 
               onChange={handleClientChange} 
             ></textarea>
+          </div>
+          
+          <h2>銀行振込先情報</h2>
+          <div className="form-group">
+            <label>銀行名</label>
+            <input 
+              type="text" 
+              name="bankName" 
+              value={invoice.bankInfo.bankName} 
+              onChange={handleBankInfoChange} 
+            />
+          </div>
+          <div className="form-group">
+            <label>支店名</label>
+            <input 
+              type="text" 
+              name="branchName" 
+              value={invoice.bankInfo.branchName} 
+              onChange={handleBankInfoChange} 
+            />
+          </div>
+          <div className="form-group">
+            <label>口座種類</label>
+            <input 
+              type="text" 
+              name="accountType" 
+              value={invoice.bankInfo.accountType} 
+              onChange={handleBankInfoChange} 
+            />
+          </div>
+          <div className="form-group">
+            <label>口座番号</label>
+            <input 
+              type="text" 
+              name="accountNumber" 
+              value={invoice.bankInfo.accountNumber} 
+              onChange={handleBankInfoChange} 
+            />
+          </div>
+          <div className="form-group">
+            <label>口座名義</label>
+            <input 
+              type="text" 
+              name="accountName" 
+              value={invoice.bankInfo.accountName} 
+              onChange={handleBankInfoChange} 
+            />
           </div>
           
           <h2>品目</h2>
