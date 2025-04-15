@@ -2,6 +2,7 @@
   "name": "invoice-web2",
   "version": "0.1.0",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "@react-pdf/renderer": "^4.3.0",
     "@testing-library/dom": "^10.4.0",
