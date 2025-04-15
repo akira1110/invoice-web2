@@ -439,10 +439,15 @@ function App() {
       
       // 有効な内容領域
       const contentWidth = pdfWidth - (margin * 2);
-      const contentHeight = pdfHeight - (margin * 2);
       
-      // 内容領域いっぱいに拡大（A4サイズに合わせる）
-      pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, contentHeight);
+      // キャンバスのアスペクト比を計算
+      const canvasRatio = canvas.height / canvas.width;
+      
+      // 縦横比を維持したままコンテンツをPDFに配置
+      const imageWidth = contentWidth;
+      const imageHeight = imageWidth * canvasRatio;
+      
+      pdf.addImage(imgData, 'PNG', margin, margin, imageWidth, imageHeight);
       pdf.save('請求書.pdf');
     });
   };
@@ -490,10 +495,15 @@ function App() {
       
       // 有効な内容領域
       const contentWidth = pdfWidth - (margin * 2);
-      const contentHeight = pdfHeight - (margin * 2);
       
-      // 内容領域いっぱいに拡大（A4サイズに合わせる）
-      pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, contentHeight);
+      // キャンバスのアスペクト比を計算
+      const canvasRatio = canvas.height / canvas.width;
+      
+      // 縦横比を維持したままコンテンツをPDFに配置
+      const imageWidth = contentWidth;
+      const imageHeight = imageWidth * canvasRatio;
+      
+      pdf.addImage(imgData, 'PNG', margin, margin, imageWidth, imageHeight);
       
       // PDFをBase64形式で取得
       const pdfBase64 = pdf.output('datauristring');
