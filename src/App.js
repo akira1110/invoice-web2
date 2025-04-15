@@ -15,9 +15,9 @@ const invoiceTemplates = {
       
       <div style="margin-bottom: 15px; display: flex; justify-content: space-between;">
         <div style="width: 60%;">
-          <p style="margin: 3px 0;"><strong>請求書番号:</strong> ${invoice.invoiceNumber}</p>
-          <p style="margin: 3px 0;"><strong>発行日:</strong> ${invoice.issueDate}</p>
-          <p style="margin: 3px 0;"><strong>支払期限:</strong> ${invoice.dueDate}</p>
+          ${invoice.invoiceNumber ? `<p style="margin: 3px 0;"><strong>請求書番号:</strong> ${invoice.invoiceNumber}</p>` : ''}
+          ${invoice.issueDate ? `<p style="margin: 3px 0;"><strong>発行日:</strong> ${invoice.issueDate}</p>` : ''}
+          ${invoice.dueDate ? `<p style="margin: 3px 0;"><strong>支払期限:</strong> ${invoice.dueDate}</p>` : ''}
         </div>
         <div style="width: 40%; text-align: right;">
           <p style="margin: 3px 0; font-size: 16px;"><strong>合計金額:</strong> ¥${invoice.total.toLocaleString()}</p>
@@ -28,16 +28,16 @@ const invoiceTemplates = {
         <div style="width: 45%; margin-right: 5%;">
           <h3 style="margin: 0 0 5px 0; font-size: 14px;">請求元:</h3>
           <p style="margin: 3px 0; font-size: 12px;">${invoice.company.name}</p>
-          <p style="margin: 3px 0; font-size: 12px;">〒${invoice.company.postalCode}</p>
-          <p style="margin: 3px 0; font-size: 12px;">${invoice.company.address}</p>
-          <p style="margin: 3px 0; font-size: 12px;">電話: ${invoice.company.phone}</p>
-          <p style="margin: 3px 0; font-size: 12px;">メール: ${invoice.company.email}</p>
+          ${invoice.company.postalCode ? `<p style="margin: 3px 0; font-size: 12px;">〒${invoice.company.postalCode}</p>` : ''}
+          ${invoice.company.address ? `<p style="margin: 3px 0; font-size: 12px;">${invoice.company.address}</p>` : ''}
+          ${invoice.company.phone ? `<p style="margin: 3px 0; font-size: 12px;">電話: ${invoice.company.phone}</p>` : ''}
+          ${invoice.company.email ? `<p style="margin: 3px 0; font-size: 12px;">メール: ${invoice.company.email}</p>` : ''}
         </div>
         <div style="width: 45%;">
           <h3 style="margin: 0 0 5px 0; font-size: 14px;">請求先:</h3>
           <p style="margin: 3px 0; font-size: 12px;">${invoice.client.name}</p>
-          <p style="margin: 3px 0; font-size: 12px;">〒${invoice.client.postalCode}</p>
-          <p style="margin: 3px 0; font-size: 12px;">${invoice.client.address}</p>
+          ${invoice.client.postalCode ? `<p style="margin: 3px 0; font-size: 12px;">〒${invoice.client.postalCode}</p>` : ''}
+          ${invoice.client.address ? `<p style="margin: 3px 0; font-size: 12px;">${invoice.client.address}</p>` : ''}
         </div>
       </div>
       
@@ -94,21 +94,31 @@ const invoiceTemplates = {
         <h3 style="margin: 0 0 5px 0; font-size: 14px;">振込先情報:</h3>
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
+            ${invoice.bankInfo.bankName ? `
             <td style="padding: 3px; width: 20%;"><strong>銀行名:</strong></td>
             <td style="padding: 3px;">${invoice.bankInfo.bankName}</td>
+            ` : ''}
+            ${invoice.bankInfo.branchName ? `
             <td style="padding: 3px; width: 20%;"><strong>支店名:</strong></td>
             <td style="padding: 3px;">${invoice.bankInfo.branchName}</td>
+            ` : ''}
           </tr>
           <tr>
+            ${invoice.bankInfo.accountType ? `
             <td style="padding: 3px;"><strong>口座種類:</strong></td>
             <td style="padding: 3px;">${invoice.bankInfo.accountType}</td>
+            ` : ''}
+            ${invoice.bankInfo.accountNumber ? `
             <td style="padding: 3px;"><strong>口座番号:</strong></td>
             <td style="padding: 3px;">${invoice.bankInfo.accountNumber}</td>
+            ` : ''}
           </tr>
+          ${invoice.bankInfo.accountName ? `
           <tr>
             <td style="padding: 3px;"><strong>口座名義:</strong></td>
             <td style="padding: 3px;" colspan="3">${invoice.bankInfo.accountName}</td>
           </tr>
+          ` : ''}
         </table>
       </div>
       
@@ -127,9 +137,9 @@ const invoiceTemplates = {
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #3498db;">
         <h1 style="font-size: 20px; color: #3498db; margin: 0;">請求書</h1>
         <div style="text-align: right;">
-          <p style="margin: 2px 0; font-size: 12px;"><strong>請求書番号:</strong> #${invoice.invoiceNumber}</p>
-          <p style="margin: 2px 0; font-size: 12px;"><strong>発行日:</strong> ${invoice.issueDate}</p>
-          <p style="margin: 2px 0; font-size: 12px;"><strong>支払期限:</strong> ${invoice.dueDate}</p>
+          ${invoice.invoiceNumber ? `<p style="margin: 2px 0; font-size: 12px;"><strong>請求書番号:</strong> #${invoice.invoiceNumber}</p>` : ''}
+          ${invoice.issueDate ? `<p style="margin: 2px 0; font-size: 12px;"><strong>発行日:</strong> ${invoice.issueDate}</p>` : ''}
+          ${invoice.dueDate ? `<p style="margin: 2px 0; font-size: 12px;"><strong>支払期限:</strong> ${invoice.dueDate}</p>` : ''}
         </div>
       </div>
       
@@ -137,16 +147,16 @@ const invoiceTemplates = {
         <div style="width: 47%; padding: 10px; background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 3px;">
           <h3 style="color: #3498db; margin: 0 0 5px 0; font-size: 14px;">請求元</h3>
           <p style="margin: 2px 0; font-size: 12px;"><strong>${invoice.company.name}</strong></p>
-          <p style="margin: 2px 0; font-size: 12px;">〒${invoice.company.postalCode}</p>
-          <p style="margin: 2px 0; font-size: 12px;">${invoice.company.address}</p>
-          <p style="margin: 2px 0; font-size: 12px;">電話: ${invoice.company.phone}</p>
-          <p style="margin: 2px 0; font-size: 12px;">メール: ${invoice.company.email}</p>
+          ${invoice.company.postalCode ? `<p style="margin: 2px 0; font-size: 12px;">〒${invoice.company.postalCode}</p>` : ''}
+          ${invoice.company.address ? `<p style="margin: 2px 0; font-size: 12px;">${invoice.company.address}</p>` : ''}
+          ${invoice.company.phone ? `<p style="margin: 2px 0; font-size: 12px;">電話: ${invoice.company.phone}</p>` : ''}
+          ${invoice.company.email ? `<p style="margin: 2px 0; font-size: 12px;">メール: ${invoice.company.email}</p>` : ''}
         </div>
         <div style="width: 47%; padding: 10px; background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 3px;">
           <h3 style="color: #3498db; margin: 0 0 5px 0; font-size: 14px;">請求先</h3>
           <p style="margin: 2px 0; font-size: 12px;"><strong>${invoice.client.name}</strong></p>
-          <p style="margin: 2px 0; font-size: 12px;">〒${invoice.client.postalCode}</p>
-          <p style="margin: 2px 0; font-size: 12px;">${invoice.client.address}</p>
+          ${invoice.client.postalCode ? `<p style="margin: 2px 0; font-size: 12px;">〒${invoice.client.postalCode}</p>` : ''}
+          ${invoice.client.address ? `<p style="margin: 2px 0; font-size: 12px;">${invoice.client.address}</p>` : ''}
         </div>
       </div>
       
@@ -204,11 +214,11 @@ const invoiceTemplates = {
       <div style="margin-top: 15px; padding: 10px; background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 3px;">
         <h3 style="color: #3498db; margin: 0 0 5px 0; font-size: 14px;">振込先情報</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 12px;">
-          <p style="margin: 2px 0;"><strong>銀行名:</strong> ${invoice.bankInfo.bankName}</p>
-          <p style="margin: 2px 0;"><strong>支店名:</strong> ${invoice.bankInfo.branchName}</p>
-          <p style="margin: 2px 0;"><strong>口座種類:</strong> ${invoice.bankInfo.accountType}</p>
-          <p style="margin: 2px 0;"><strong>口座番号:</strong> ${invoice.bankInfo.accountNumber}</p>
-          <p style="margin: 2px 0; grid-column: span 2;"><strong>口座名義:</strong> ${invoice.bankInfo.accountName}</p>
+          ${invoice.bankInfo.bankName ? `<p style="margin: 2px 0;"><strong>銀行名:</strong> ${invoice.bankInfo.bankName}</p>` : ''}
+          ${invoice.bankInfo.branchName ? `<p style="margin: 2px 0;"><strong>支店名:</strong> ${invoice.bankInfo.branchName}</p>` : ''}
+          ${invoice.bankInfo.accountType ? `<p style="margin: 2px 0;"><strong>口座種類:</strong> ${invoice.bankInfo.accountType}</p>` : ''}
+          ${invoice.bankInfo.accountNumber ? `<p style="margin: 2px 0;"><strong>口座番号:</strong> ${invoice.bankInfo.accountNumber}</p>` : ''}
+          ${invoice.bankInfo.accountName ? `<p style="margin: 2px 0; grid-column: span 2;"><strong>口座名義:</strong> ${invoice.bankInfo.accountName}</p>` : ''}
         </div>
       </div>
       
