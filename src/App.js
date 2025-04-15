@@ -37,7 +37,8 @@ function App() {
     taxRate: 10,
     taxAmount: 0,
     total: 0,
-    notes: ''
+    notes: '',
+    sendToEmail: ''
   });
 
   const invoiceRef = useRef(null);
@@ -149,6 +150,162 @@ function App() {
       ...invoice,
       [name]: value
     });
+  };
+
+  const sendPdfByEmail = async () => {
+    if (!invoice.sendToEmail) {
+      alert('送信先メールアドレスを入力してください');
+      return;
+    }
+    
+    try {
+      // 送信中メッセージを表示
+      alert('メールを送信準備中です。しばらくお待ちください...');
+      
+      // プレビュー用要素を取得（generatePDFと同じ処理）
+      const element = document.createElement('div');
+      element.innerHTML = `
+        <div class="invoice-preview" style="font-family: sans-serif; padding: 30px; max-width: 800px; margin: 0 auto;">
+          <h1 style="text-align: center; margin-bottom: 20px; font-size: 24px;">請求書</h1>
+          
+          <div style="margin-bottom: 20px;">
+            <p><strong>請求書番号:</strong> ${invoice.invoiceNumber}</p>
+            <p><strong>発行日:</strong> ${invoice.issueDate}</p>
+            <p><strong>支払期限:</strong> ${invoice.dueDate}</p>
+          </div>
+          
+          <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+            <div>
+              <h3 style="margin-bottom: 10px;">請求元:</h3>
+              <p>${invoice.company.name}</p>
+              <p>〒${invoice.company.postalCode}</p>
+              <p>${invoice.company.address}</p>
+              <p>電話: ${invoice.company.phone}</p>
+              <p>メール: ${invoice.company.email}</p>
+            </div>
+            <div>
+              <h3 style="margin-bottom: 10px;">請求先:</h3>
+              <p>${invoice.client.name}</p>
+              <p>〒${invoice.client.postalCode}</p>
+              <p>${invoice.client.address}</p>
+            </div>
+          </div>
+          
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+            <thead>
+              <tr style="border-bottom: 2px solid #ddd;">
+                <th style="text-align: left; padding: 10px;">品目</th>
+                <th style="text-align: right; padding: 10px;">数量</th>
+                <th style="text-align: right; padding: 10px;">単価</th>
+                <th style="text-align: right; padding: 10px;">金額</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${invoice.items.map(item => `
+                <tr style="border-bottom: 1px solid #ddd;">
+                  <td style="padding: 10px;">${item.description}</td>
+                  <td style="text-align: right; padding: 10px;">${item.quantity}</td>
+                  <td style="text-align: right; padding: 10px;">¥${parseFloat(item.unitPrice).toLocaleString()}</td>
+                  <td style="text-align: right; padding: 10px;">¥${parseFloat(item.amount).toLocaleString()}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          
+          <div style="margin-left: auto; width: 250px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+              <p><strong>小計:</strong></p>
+              <p>¥${invoice.subtotal.toLocaleString()}</p>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+              <p><strong>消費税 (${invoice.taxRate}%):</strong></p>
+              <p>¥${invoice.taxAmount.toLocaleString()}</p>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 10px; border-top: 2px solid #ddd; padding-top: 10px;">
+              <p>合計金額:</p>
+              <p>¥${invoice.total.toLocaleString()}</p>
+            </div>
+          </div>
+          
+          <div style="margin-top: 30px;">
+            <h3 style="margin-bottom: 10px;">振込先情報:</h3>
+            <p><strong>銀行名:</strong> ${invoice.bankInfo.bankName}</p>
+            <p><strong>支店名:</strong> ${invoice.bankInfo.branchName}</p>
+            <p><strong>口座種類:</strong> ${invoice.bankInfo.accountType}</p>
+            <p><strong>口座番号:</strong> ${invoice.bankInfo.accountNumber}</p>
+            <p><strong>口座名義:</strong> ${invoice.bankInfo.accountName}</p>
+          </div>
+          
+          ${invoice.notes ? `
+            <div style="margin-top: 40px;">
+              <h3 style="margin-bottom: 10px;">備考:</h3>
+              <p>${invoice.notes}</p>
+            </div>
+          ` : ''}
+        </div>
+      `;
+      
+      document.body.appendChild(element);
+      
+      // HTML要素をキャンバスに変換
+      const canvas = await html2canvas(element);
+      document.body.removeChild(element);
+      
+      // キャンバスをPDFに変換
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const imgWidth = 210; // A4サイズの幅
+      const pageHeight = 297; // A4サイズの高さ
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      
+      // 複数ページに対応
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      
+      // PDFをBase64形式で取得
+      const pdfBase64 = pdf.output('datauristring');
+      
+      // Google Apps Scriptにデータを送信
+      const response = await fetch('https://script.google.com/macros/s/AKfycbz1ESTp4jKMchWFHLBV0wwrRm52yt4rRlUQ4Ve1KYmyST-QOqz3dVE49dTK_xmbTDKM/exec', {
+        method: 'POST',
+        body: JSON.stringify({
+          pdfBase64: pdfBase64,
+          to: invoice.sendToEmail,
+          subject: `請求書 ${invoice.invoiceNumber}`,
+          body: `${invoice.client.name} 様
+
+請求書をお送りします。ご確認ください。
+
+${invoice.company.name}`
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        alert('メールを送信しました');
+      } else {
+        throw new Error(result.error || '送信に失敗しました');
+      }
+      
+    } catch (error) {
+      console.error('メール送信中にエラーが発生しました:', error);
+      alert(`メール送信中にエラーが発生しました: ${error.message}`);
+    }
   };
 
   const generatePDF = () => {
@@ -535,9 +692,23 @@ function App() {
             ></textarea>
           </div>
           
+          <div className="form-group">
+            <label>メール送信先</label>
+            <input
+              type="email"
+              name="sendToEmail"
+              value={invoice.sendToEmail}
+              onChange={handleInputChange}
+              placeholder="example@example.com"
+            />
+          </div>
+          
           <div className="actions">
             <button className="generate-pdf" onClick={generatePDF}>
               PDFをダウンロード
+            </button>
+            <button className="send-email" onClick={sendPdfByEmail}>
+              メールで送信
             </button>
           </div>
         </div>
