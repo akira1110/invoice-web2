@@ -11,7 +11,10 @@ const invoiceTemplates = {
   // 標準テンプレート
   standard: (invoice) => `
     <div class="invoice-preview" style="font-family: sans-serif; padding: 15px; max-width: 750px; margin: 0 auto;">
-      <h1 style="text-align: center; margin-bottom: 15px; font-size: 20px;">請求書</h1>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        ${invoice.company.logo ? `<div style="max-width: 200px; max-height: 100px;"><img src="${invoice.company.logo}" style="max-width: 100%; max-height: 100px;"></div>` : ''}
+        <h1 style="text-align: center; margin-bottom: 15px; font-size: 20px; ${invoice.company.logo ? 'margin-left: 20px;' : ''}">請求書</h1>
+      </div>
       
       <div style="margin-bottom: 15px; display: flex; justify-content: space-between;">
         <div style="width: 60%;">
@@ -135,11 +138,14 @@ const invoiceTemplates = {
   modern: (invoice) => `
     <div class="invoice-preview" style="font-family: 'Helvetica', sans-serif; padding: 20px; max-width: 750px; margin: 0 auto; color: #333; background-color: #f9f9f9;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #3498db;">
-        <h1 style="font-size: 20px; color: #3498db; margin: 0;">請求書</h1>
-        <div style="text-align: right;">
-          ${invoice.invoiceNumber ? `<p style="margin: 2px 0; font-size: 12px;"><strong>請求書番号:</strong> #${invoice.invoiceNumber}</p>` : ''}
-          ${invoice.issueDate ? `<p style="margin: 2px 0; font-size: 12px;"><strong>発行日:</strong> ${invoice.issueDate}</p>` : ''}
-          ${invoice.dueDate ? `<p style="margin: 2px 0; font-size: 12px;"><strong>支払期限:</strong> ${invoice.dueDate}</p>` : ''}
+        ${invoice.company.logo ? `<div style="max-width: 200px; max-height: 100px;"><img src="${invoice.company.logo}" style="max-width: 100%; max-height: 100px;"></div>` : ''}
+        <div style="display: flex; flex-direction: column; align-items: ${invoice.company.logo ? 'flex-end' : 'space-between'}; width: 100%;">
+          <h1 style="font-size: 20px; color: #3498db; margin: 0;">請求書</h1>
+          <div style="text-align: right;">
+            ${invoice.invoiceNumber ? `<p style="margin: 2px 0; font-size: 12px;"><strong>請求書番号:</strong> #${invoice.invoiceNumber}</p>` : ''}
+            ${invoice.issueDate ? `<p style="margin: 2px 0; font-size: 12px;"><strong>発行日:</strong> ${invoice.issueDate}</p>` : ''}
+            ${invoice.dueDate ? `<p style="margin: 2px 0; font-size: 12px;"><strong>支払期限:</strong> ${invoice.dueDate}</p>` : ''}
+          </div>
         </div>
       </div>
       
@@ -242,7 +248,8 @@ function App() {
       address: '',
       postalCode: '',
       phone: '',
-      email: ''
+      email: '',
+      logo: ''
     },
     client: {
       name: '',
@@ -278,6 +285,23 @@ function App() {
         [name]: value
       }
     });
+  };
+
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setInvoice({
+          ...invoice,
+          company: {
+            ...invoice.company,
+            logo: reader.result
+          }
+        });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleClientChange = (e) => {
@@ -647,6 +671,27 @@ ${invoice.company.name}`
               value={invoice.company.address} 
               onChange={handleCompanyChange} 
             ></textarea>
+          </div>
+          <div className="form-group">
+            <label>企業ロゴ <span className="optional-label">任意</span></label>
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleLogoUpload} 
+              className="logo-upload"
+            />
+            {invoice.company.logo && (
+              <div className="logo-preview">
+                <img src={invoice.company.logo} alt="企業ロゴプレビュー" style={{maxHeight: "100px", maxWidth: "200px"}} />
+                <button 
+                  type="button" 
+                  className="remove-logo" 
+                  onClick={() => setInvoice({...invoice, company: {...invoice.company, logo: ''}})}
+                >
+                  ロゴを削除
+                </button>
+              </div>
+            )}
           </div>
           <div className="form-row">
             <div className="form-group">
