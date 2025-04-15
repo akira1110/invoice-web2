@@ -201,7 +201,7 @@ function App() {
           </div>
           
           <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
-            <div>
+            <div style="width: 45%; margin-right: 5%;">
               <h3 style="margin-bottom: 10px;">請求元:</h3>
               <p>${invoice.company.name}</p>
               <p>〒${invoice.company.postalCode}</p>
@@ -209,7 +209,7 @@ function App() {
               <p>電話: ${invoice.company.phone}</p>
               <p>メール: ${invoice.company.email}</p>
             </div>
-            <div>
+            <div style="width: 45%;">
               <h3 style="margin-bottom: 10px;">請求先:</h3>
               <p>${invoice.client.name}</p>
               <p>〒${invoice.client.postalCode}</p>
@@ -350,7 +350,7 @@ ${invoice.company.name}`
         </div>
         
         <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
-          <div>
+          <div style="width: 45%; margin-right: 5%;">
             <h3 style="margin-bottom: 10px;">請求元:</h3>
             <p>${invoice.company.name}</p>
             <p>〒${invoice.company.postalCode}</p>
@@ -358,7 +358,7 @@ ${invoice.company.name}`
             <p>電話: ${invoice.company.phone}</p>
             <p>メール: ${invoice.company.email}</p>
           </div>
-          <div>
+          <div style="width: 45%;">
             <h3 style="margin-bottom: 10px;">請求先:</h3>
             <p>${invoice.client.name}</p>
             <p>〒${invoice.client.postalCode}</p>
