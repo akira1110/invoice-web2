@@ -423,32 +423,16 @@ function App() {
         format: 'a4'
       });
       
-      const imgWidth = 210; // A4サイズの幅（mm）
-      const pageHeight = 297; // A4サイズの高さ（mm）
+      const pdfWidth = pdf.internal.pageSize.getWidth(); // A4の幅
+      const pdfHeight = pdf.internal.pageSize.getHeight(); // A4の高さ
       const margin = 10; // マージン（mm）
-      const contentWidth = imgWidth - (margin * 2); // マージンを考慮した内容幅
       
-      // 縦横比を保ったまま、A4幅いっぱいに拡大（マージンを除く）
-      const imgHeight = (canvas.height * contentWidth) / canvas.width;
+      // 有効な内容領域
+      const contentWidth = pdfWidth - (margin * 2);
+      const contentHeight = pdfHeight - (margin * 2);
       
-      // PDF内の位置を調整（中央に配置）
-      const positionX = margin;
-      let positionY = margin;
-      
-      // 最初のページに画像を追加
-      pdf.addImage(imgData, 'PNG', positionX, positionY, contentWidth, imgHeight);
-      let heightLeft = imgHeight - (pageHeight - (margin * 2));
-      let pageCount = 1;
-      
-      // 複数ページに対応
-      while (heightLeft > 0) {
-        pageCount++;
-        positionY = -(pageHeight - (margin * 2)) * (pageCount - 1) + margin;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', positionX, positionY, contentWidth, imgHeight);
-        heightLeft -= (pageHeight - (margin * 2));
-      }
-      
+      // 内容領域いっぱいに拡大（A4サイズに合わせる）
+      pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, contentHeight);
       pdf.save('請求書.pdf');
     });
   };
@@ -490,31 +474,16 @@ function App() {
         format: 'a4'
       });
       
-      const imgWidth = 210; // A4サイズの幅（mm）
-      const pageHeight = 297; // A4サイズの高さ（mm）
+      const pdfWidth = pdf.internal.pageSize.getWidth(); // A4の幅
+      const pdfHeight = pdf.internal.pageSize.getHeight(); // A4の高さ
       const margin = 10; // マージン（mm）
-      const contentWidth = imgWidth - (margin * 2); // マージンを考慮した内容幅
       
-      // 縦横比を保ったまま、A4幅いっぱいに拡大（マージンを除く）
-      const imgHeight = (canvas.height * contentWidth) / canvas.width;
+      // 有効な内容領域
+      const contentWidth = pdfWidth - (margin * 2);
+      const contentHeight = pdfHeight - (margin * 2);
       
-      // PDF内の位置を調整（中央に配置）
-      const positionX = margin;
-      let positionY = margin;
-      
-      // 最初のページに画像を追加
-      pdf.addImage(imgData, 'PNG', positionX, positionY, contentWidth, imgHeight);
-      let heightLeft = imgHeight - (pageHeight - (margin * 2));
-      let pageCount = 1;
-      
-      // 複数ページに対応
-      while (heightLeft > 0) {
-        pageCount++;
-        positionY = -(pageHeight - (margin * 2)) * (pageCount - 1) + margin;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', positionX, positionY, contentWidth, imgHeight);
-        heightLeft -= (pageHeight - (margin * 2));
-      }
+      // 内容領域いっぱいに拡大（A4サイズに合わせる）
+      pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, contentHeight);
       
       // PDFをBase64形式で取得
       const pdfBase64 = pdf.output('datauristring');
