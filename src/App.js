@@ -37,7 +37,7 @@ function App() {
     taxRate: 10,
     taxAmount: 0,
     total: 0,
-    notes: '',
+    notes: '振込手数料はご負担願います。',
     sendToEmail: ''
   });
 
@@ -94,7 +94,7 @@ function App() {
     
     // 小計、消費税、合計金額の計算
     const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
-    const taxAmount = subtotal * (invoice.taxRate / 100);
+    const taxAmount = Math.round(subtotal * (invoice.taxRate / 100) * 10) / 10; // 小数点第1位で四捨五入
     const total = subtotal + taxAmount;
     
     setInvoice({
@@ -119,7 +119,7 @@ function App() {
     
     // 小計、消費税、合計金額の再計算
     const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
-    const taxAmount = subtotal * (invoice.taxRate / 100);
+    const taxAmount = Math.round(subtotal * (invoice.taxRate / 100) * 10) / 10; // 小数点第1位で四捨五入
     const total = subtotal + taxAmount;
     
     setInvoice({
@@ -133,7 +133,7 @@ function App() {
 
   const handleTaxRateChange = (e) => {
     const taxRate = parseFloat(e.target.value) || 0;
-    const taxAmount = invoice.subtotal * (taxRate / 100);
+    const taxAmount = Math.round(invoice.subtotal * (taxRate / 100) * 10) / 10; // 小数点第1位で四捨五入
     const total = invoice.subtotal + taxAmount;
     
     setInvoice({
