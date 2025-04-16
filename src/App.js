@@ -274,6 +274,14 @@ function App() {
     template: 'standard'
   });
 
+  // トグルの状態を管理するステート
+  const [toggleState, setToggleState] = useState({
+    companyInfo: false,
+    clientInfo: false,
+    bankInfo: false,
+    itemsInfo: true  // 品目セクションの初期状態は開いている
+  });
+
   const invoiceRef = useRef(null);
 
   const handleCompanyChange = (e) => {
@@ -427,6 +435,28 @@ function App() {
       ...invoice,
       [name]: value
     });
+  };
+
+  // セクションの開閉を切り替える関数
+  const toggleSection = (section) => {
+    setToggleState({
+      ...toggleState,
+      [section]: !toggleState[section]
+    });
+  };
+
+  // セクションが入力済みかをチェックする関数
+  const isSectionFilled = (section) => {
+    switch(section) {
+      case 'companyInfo':
+        return !!invoice.company.name;
+      case 'clientInfo':
+        return !!invoice.client.name;
+      case 'bankInfo':
+        return !!(invoice.bankInfo.bankName || invoice.bankInfo.accountNumber);
+      default:
+        return false;
+    }
   };
 
   const validateRequiredFields = () => {
@@ -644,271 +674,303 @@ ${invoice.company.name}`
             </div>
           </div>
           
-          <h2>請求元情報</h2>
-          <div className="form-group">
-            <label>会社名 <span className="required-label">必須</span></label>
-            <input 
-              type="text" 
-              name="name" 
-              value={invoice.company.name} 
-              onChange={handleCompanyChange} 
-              required
-            />
+          <div className="section-header">
+            <h2 onClick={() => toggleSection('companyInfo')}>
+              請求元情報 {toggleState.companyInfo ? '▼' : '▶'}
+            </h2>
           </div>
-          <div className="form-group">
-            <label>郵便番号 <span className="optional-label">任意</span></label>
-            <input 
-              type="text" 
-              name="postalCode" 
-              value={invoice.company.postalCode} 
-              onChange={handleCompanyChange} 
-            />
-          </div>
-          <div className="form-group">
-            <label>住所 <span className="optional-label">任意</span></label>
-            <textarea 
-              name="address" 
-              value={invoice.company.address} 
-              onChange={handleCompanyChange} 
-            ></textarea>
-          </div>
-          <div className="form-group">
-            <label>企業ロゴ <span className="optional-label">任意</span></label>
-            <input 
-              type="file" 
-              accept="image/*" 
-              onChange={handleLogoUpload} 
-              className="logo-upload"
-            />
-            {invoice.company.logo && (
-              <div className="logo-preview">
-                <img src={invoice.company.logo} alt="企業ロゴプレビュー" style={{maxHeight: "100px", maxWidth: "200px"}} />
-                <button 
-                  type="button" 
-                  className="remove-logo" 
-                  onClick={() => setInvoice({...invoice, company: {...invoice.company, logo: ''}})}
-                >
-                  ロゴを削除
-                </button>
-              </div>
-            )}
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>電話番号 <span className="optional-label">任意</span></label>
-              <input 
-                type="text" 
-                name="phone" 
-                value={invoice.company.phone} 
-                onChange={handleCompanyChange} 
-              />
-            </div>
-            <div className="form-group">
-              <label>メール <span className="optional-label">任意</span></label>
-              <input 
-                type="email" 
-                name="email" 
-                value={invoice.company.email} 
-                onChange={handleCompanyChange} 
-              />
-            </div>
-          </div>
-          
-          <h2>請求先情報</h2>
-          <div className="form-group">
-            <label>会社名/個人名 <span className="required-label">必須</span></label>
-            <input 
-              type="text" 
-              name="name" 
-              value={invoice.client.name} 
-              onChange={handleClientChange} 
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>郵便番号 <span className="optional-label">任意</span></label>
-            <input 
-              type="text" 
-              name="postalCode" 
-              value={invoice.client.postalCode} 
-              onChange={handleClientChange} 
-            />
-          </div>
-          <div className="form-group">
-            <label>住所 <span className="optional-label">任意</span></label>
-            <textarea 
-              name="address" 
-              value={invoice.client.address} 
-              onChange={handleClientChange} 
-            ></textarea>
-          </div>
-          
-          <h2>銀行振込先情報</h2>
-          <div className="form-group">
-            <label>銀行名 <span className="optional-label">任意</span></label>
-            <input 
-              type="text" 
-              name="bankName" 
-              value={invoice.bankInfo.bankName} 
-              onChange={handleBankInfoChange} 
-            />
-          </div>
-          <div className="form-group">
-            <label>支店名 <span className="optional-label">任意</span></label>
-            <input 
-              type="text" 
-              name="branchName" 
-              value={invoice.bankInfo.branchName} 
-              onChange={handleBankInfoChange} 
-            />
-          </div>
-          <div className="form-group">
-            <label>口座種類 <span className="optional-label">任意</span></label>
-            <input 
-              type="text" 
-              name="accountType" 
-              value={invoice.bankInfo.accountType} 
-              onChange={handleBankInfoChange} 
-            />
-          </div>
-          <div className="form-group">
-            <label>口座番号 <span className="optional-label">任意</span></label>
-            <input 
-              type="text" 
-              name="accountNumber" 
-              value={invoice.bankInfo.accountNumber} 
-              onChange={handleBankInfoChange} 
-            />
-          </div>
-          <div className="form-group">
-            <label>口座名義 <span className="optional-label">任意</span></label>
-            <input 
-              type="text" 
-              name="accountName" 
-              value={invoice.bankInfo.accountName} 
-              onChange={handleBankInfoChange} 
-            />
-          </div>
-          
-          <h2>品目</h2>
-          {invoice.items.map((item, index) => (
-            <div className="item-row" key={index}>
-              <div className="item-controls">
-                <button
-                  type="button"
-                  className="move-item-up"
-                  onClick={() => moveItemUp(index)}
-                  disabled={index === 0}
-                >
-                  ↑
-                </button>
-                <button
-                  type="button"
-                  className="move-item-down"
-                  onClick={() => moveItemDown(index)}
-                  disabled={index === invoice.items.length - 1}
-                >
-                  ↓
-                </button>
-              </div>
-              <div className="form-group description">
-                <label>品目 <span className="required-label">必須</span></label>
+          {toggleState.companyInfo && (
+            <div className="section-content">
+              <div className="form-group">
+                <label>会社名 <span className="required-label">必須</span></label>
                 <input 
                   type="text" 
-                  name="description" 
-                  value={item.description} 
-                  onChange={(e) => handleItemChange(index, e)} 
+                  name="name" 
+                  value={invoice.company.name} 
+                  onChange={handleCompanyChange} 
                   required
-                />
-              </div>
-              <div className="form-group quantity">
-                <label>数量 <span className="required-label">必須</span></label>
-                <input 
-                  type="number" 
-                  name="quantity" 
-                  value={item.quantity} 
-                  onChange={(e) => handleItemChange(index, e)} 
-                  required
-                />
-              </div>
-              <div className="form-group unit-price">
-                <label>単価 <span className="required-label">必須</span></label>
-                <input 
-                  type="number" 
-                  name="unitPrice" 
-                  value={item.unitPrice} 
-                  onChange={(e) => handleItemChange(index, e)} 
-                  required
-                />
-              </div>
-              <div className="form-group tax-rate">
-                <label>税率 <span className="required-label">必須</span></label>
-                <select
-                  name="taxRate"
-                  value={item.taxRate}
-                  onChange={(e) => handleItemChange(index, e)}
-                  required
-                >
-                  <option value="8">8%</option>
-                  <option value="10">10%</option>
-                </select>
-              </div>
-              <div className="form-group amount">
-                <label>金額</label>
-                <input 
-                  type="number" 
-                  name="amount" 
-                  value={item.amount} 
-                  readOnly 
-                />
-              </div>
-              {index > 0 && (
-                <button 
-                  type="button" 
-                  className="remove-item" 
-                  onClick={() => removeItem(index)}
-                >
-                  削除
-                </button>
-              )}
-            </div>
-          ))}
-          
-          <button type="button" className="add-item" onClick={addItem}>
-            品目を追加
-          </button>
-          
-          <div className="totals">
-            <div className="form-row">
-              <div className="form-group">
-                <label>小計</label>
-                <input 
-                  type="number" 
-                  name="subtotal" 
-                  value={invoice.subtotal} 
-                  readOnly 
                 />
               </div>
               <div className="form-group">
-                <label>消費税額</label>
+                <label>郵便番号 <span className="optional-label">任意</span></label>
                 <input 
-                  type="number" 
-                  name="taxAmount" 
-                  value={invoice.taxAmount} 
-                  readOnly 
+                  type="text" 
+                  name="postalCode" 
+                  value={invoice.company.postalCode} 
+                  onChange={handleCompanyChange} 
                 />
               </div>
               <div className="form-group">
-                <label>合計金額</label>
+                <label>住所 <span className="optional-label">任意</span></label>
+                <textarea 
+                  name="address" 
+                  value={invoice.company.address} 
+                  onChange={handleCompanyChange} 
+                ></textarea>
+              </div>
+              <div className="form-group">
+                <label>企業ロゴ <span className="optional-label">任意</span></label>
                 <input 
-                  type="number" 
-                  name="total" 
-                  value={invoice.total} 
-                  readOnly 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleLogoUpload} 
+                  className="logo-upload"
                 />
+                {invoice.company.logo && (
+                  <div className="logo-preview">
+                    <img src={invoice.company.logo} alt="企業ロゴプレビュー" style={{maxHeight: "100px", maxWidth: "200px"}} />
+                    <button 
+                      type="button" 
+                      className="remove-logo" 
+                      onClick={() => setInvoice({...invoice, company: {...invoice.company, logo: ''}})}
+                    >
+                      ロゴを削除
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>電話番号 <span className="optional-label">任意</span></label>
+                  <input 
+                    type="text" 
+                    name="phone" 
+                    value={invoice.company.phone} 
+                    onChange={handleCompanyChange} 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>メール <span className="optional-label">任意</span></label>
+                  <input 
+                    type="email" 
+                    name="email" 
+                    value={invoice.company.email} 
+                    onChange={handleCompanyChange} 
+                  />
+                </div>
               </div>
             </div>
+          )}
+          
+          <div className="section-header">
+            <h2 onClick={() => toggleSection('clientInfo')}>
+              請求先情報 {toggleState.clientInfo ? '▼' : '▶'}
+            </h2>
           </div>
+          {toggleState.clientInfo && (
+            <div className="section-content">
+              <div className="form-group">
+                <label>会社名/個人名 <span className="required-label">必須</span></label>
+                <input 
+                  type="text" 
+                  name="name" 
+                  value={invoice.client.name} 
+                  onChange={handleClientChange} 
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>郵便番号 <span className="optional-label">任意</span></label>
+                <input 
+                  type="text" 
+                  name="postalCode" 
+                  value={invoice.client.postalCode} 
+                  onChange={handleClientChange} 
+                />
+              </div>
+              <div className="form-group">
+                <label>住所 <span className="optional-label">任意</span></label>
+                <textarea 
+                  name="address" 
+                  value={invoice.client.address} 
+                  onChange={handleClientChange} 
+                ></textarea>
+              </div>
+            </div>
+          )}
+          
+          <div className="section-header">
+            <h2 onClick={() => toggleSection('bankInfo')}>
+              銀行振込先情報 {toggleState.bankInfo ? '▼' : '▶'}
+            </h2>
+          </div>
+          {toggleState.bankInfo && (
+            <div className="section-content">
+              <div className="form-group">
+                <label>銀行名 <span className="optional-label">任意</span></label>
+                <input 
+                  type="text" 
+                  name="bankName" 
+                  value={invoice.bankInfo.bankName} 
+                  onChange={handleBankInfoChange} 
+                />
+              </div>
+              <div className="form-group">
+                <label>支店名 <span className="optional-label">任意</span></label>
+                <input 
+                  type="text" 
+                  name="branchName" 
+                  value={invoice.bankInfo.branchName} 
+                  onChange={handleBankInfoChange} 
+                />
+              </div>
+              <div className="form-group">
+                <label>口座種類 <span className="optional-label">任意</span></label>
+                <input 
+                  type="text" 
+                  name="accountType" 
+                  value={invoice.bankInfo.accountType} 
+                  onChange={handleBankInfoChange} 
+                />
+              </div>
+              <div className="form-group">
+                <label>口座番号 <span className="optional-label">任意</span></label>
+                <input 
+                  type="text" 
+                  name="accountNumber" 
+                  value={invoice.bankInfo.accountNumber} 
+                  onChange={handleBankInfoChange} 
+                />
+              </div>
+              <div className="form-group">
+                <label>口座名義 <span className="optional-label">任意</span></label>
+                <input 
+                  type="text" 
+                  name="accountName" 
+                  value={invoice.bankInfo.accountName} 
+                  onChange={handleBankInfoChange} 
+                />
+              </div>
+            </div>
+          )}
+          
+          <div className="section-header">
+            <h2 onClick={() => toggleSection('itemsInfo')}>
+              品目 {toggleState.itemsInfo ? '▼' : '▶'}
+            </h2>
+          </div>
+          {toggleState.itemsInfo && (
+            <div className="section-content">
+              {invoice.items.map((item, index) => (
+                <div className="item-row" key={index}>
+                  <div className="item-controls">
+                    <button
+                      type="button"
+                      className="move-item-up"
+                      onClick={() => moveItemUp(index)}
+                      disabled={index === 0}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      className="move-item-down"
+                      onClick={() => moveItemDown(index)}
+                      disabled={index === invoice.items.length - 1}
+                    >
+                      ↓
+                    </button>
+                  </div>
+                  <div className="form-group description">
+                    <label>品目 <span className="required-label">必須</span></label>
+                    <input 
+                      type="text" 
+                      name="description" 
+                      value={item.description} 
+                      onChange={(e) => handleItemChange(index, e)} 
+                      required
+                    />
+                  </div>
+                  <div className="form-group quantity">
+                    <label>数量 <span className="required-label">必須</span></label>
+                    <input 
+                      type="number" 
+                      name="quantity" 
+                      value={item.quantity} 
+                      onChange={(e) => handleItemChange(index, e)} 
+                      required
+                    />
+                  </div>
+                  <div className="form-group unit-price">
+                    <label>単価 <span className="required-label">必須</span></label>
+                    <input 
+                      type="number" 
+                      name="unitPrice" 
+                      value={item.unitPrice} 
+                      onChange={(e) => handleItemChange(index, e)} 
+                      required
+                    />
+                  </div>
+                  <div className="form-group tax-rate">
+                    <label>税率 <span className="required-label">必須</span></label>
+                    <select
+                      name="taxRate"
+                      value={item.taxRate}
+                      onChange={(e) => handleItemChange(index, e)}
+                      required
+                    >
+                      <option value="8">8%</option>
+                      <option value="10">10%</option>
+                    </select>
+                  </div>
+                  <div className="form-group amount">
+                    <label>金額</label>
+                    <input 
+                      type="number" 
+                      name="amount" 
+                      value={item.amount} 
+                      readOnly 
+                    />
+                  </div>
+                  {index > 0 && (
+                    <button 
+                      type="button" 
+                      className="remove-item" 
+                      onClick={() => removeItem(index)}
+                    >
+                      削除
+                    </button>
+                  )}
+                </div>
+              ))}
+              
+              <button type="button" className="add-item" onClick={addItem}>
+                品目を追加
+              </button>
+              
+              <div className="totals">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>小計</label>
+                    <input 
+                      type="number" 
+                      name="subtotal" 
+                      value={invoice.subtotal} 
+                      readOnly 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>消費税額</label>
+                    <input 
+                      type="number" 
+                      name="taxAmount" 
+                      value={invoice.taxAmount} 
+                      readOnly 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>合計金額</label>
+                    <input 
+                      type="number" 
+                      name="total" 
+                      value={invoice.total} 
+                      readOnly 
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           
           <div className="form-group">
             <label>備考 <span className="optional-label">任意</span></label>

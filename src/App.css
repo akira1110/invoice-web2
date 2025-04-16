@@ -314,3 +314,29 @@ button:hover {
   width: 100%;
   background-color: #f9f9f9;
 }
+
+/* セクションヘッダーのスタイル */
+.section-header h2 {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  position: relative;
+}
+
+.section-header h2:hover {
+  color: #3498db;
+}
+
+/* セクションコンテンツのスタイル */
+.section-content {
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+  margin-bottom: 20px;
+}
+
+/* トグルアイコンのスタイル */
+.section-header h2::after {
+  content: '';
+  margin-left: 10px;
+}
