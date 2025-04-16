@@ -235,6 +235,133 @@ const invoiceTemplates = {
         </div>
       ` : ''}
     </div>
+  `,
+
+  // 伝統的な日本語請求書テンプレート
+  japanese_traditional: (invoice) => `
+    <div class="invoice-preview" style="font-family: sans-serif; padding: 15px; max-width: 750px; margin: 0 auto; color: #000;">
+      <!-- ヘッダー部分 -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+        <div style="width: 50%;">
+          <div style="background-color: #4472C4; border-radius: 10px 10px 0 0; padding: 10px 20px; margin-bottom: 0;">
+            <h1 style="color: white; margin: 0; font-size: 24px; text-align: center;">請求書</h1>
+          </div>
+          <div style="padding: 10px 0;">
+            <p style="margin: 0 0 5px 0; font-size: 12px;">〒 ${invoice.client.postalCode || '123-1234'} ${invoice.client.address || '東京都世田谷区○○○ 1-2-3'}</p>
+            <p style="margin: 0 0 5px 0; font-size: 14px; font-weight: bold;">${invoice.client.name || '株式会社サンプル　○○会社'}</p>
+            <p style="margin: 0 0 5px 0; font-size: 12px;">${invoice.client.departmentName || '営業部'}　担当者：${invoice.client.contactPerson || '○○　□□'}　様</p>
+          </div>
+        </div>
+        <div style="width: 47%; text-align: right;">
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+            <tr>
+              <td style="text-align: right; font-size: 12px; padding: 2px;">No : ${invoice.invoiceNumber || '123456-123'}</td>
+              <td style="text-align: right; font-size: 12px; padding: 2px;">請求日 : ${invoice.issueDate || '2021/12/21'}</td>
+            </tr>
+          </table>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            ${invoice.templateSpecific.japanese_traditional.hasStamp ? 
+            `<div style="font-size: 12px; border: 1px solid #000; padding: 5px 10px; width: 50px;">
+              登録印
+            </div>` : ''}
+            <div${!invoice.templateSpecific.japanese_traditional.hasStamp ? ' style="width: 100%; text-align: center;"' : ''}>
+              ${invoice.company.logo ? `<img src="${invoice.company.logo}" style="max-height: 60px; max-width: 200px;">` : 
+              `<div style="font-weight: bold; font-size: 20px;">${invoice.company.name || 'Japan サンプル（ロゴ）'}</div>`}
+            </div>
+          </div>
+          <div style="text-align: left; margin-top: 10px;">
+            <p style="margin: 0 0 3px 0; font-size: 12px; font-weight: bold;">${invoice.company.name || '株式会社 日本サンプル'}</p>
+            <p style="margin: 0 0 3px 0; font-size: 12px;">〒 ${invoice.company.postalCode || ''} ${invoice.company.address || '東京都杉並区○○○ 1－2－3'}</p>
+            <p style="margin: 0 0 3px 0; font-size: 12px;">△△△ビル 1F 123</p>
+            <p style="margin: 0 0 3px 0; font-size: 12px;">
+              <span style="margin-right: 10px;">☎ ${invoice.company.phone || '03-1234-5678'}</span>
+              <span>✉ ${invoice.company.email || 'info@japansample.com'}</span>
+            </p>
+          </div>
+          <div style="border: 1px solid #000; padding: 5px; margin-top: 10px; text-align: left;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="font-size: 12px;">${invoice.bankInfo.bankName || '○○○○ 銀行'} ${invoice.bankInfo.branchName || '△△△ 支店'}</td>
+              </tr>
+              <tr>
+                <td style="font-size: 12px;">(普) ${invoice.bankInfo.accountNumber || '0123456'} ${invoice.bankInfo.accountName || 'カ)ﾆﾎﾝｻﾝﾌﾟﾙ'}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 請求金額部分 -->
+      <div style="border: 1px solid #000; margin-bottom: 20px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="width: 20%; padding: 10px 15px; font-size: 14px; font-weight: bold; text-align: center; border-right: 1px solid #000;">請求金額(税込)</td>
+            <td style="width: 80%; padding: 10px 15px; font-size: 20px; font-weight: bold; text-align: right;">¥${invoice.total.toLocaleString()}-</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- 明細テーブル -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+          <tr style="border: 1px solid #000; background-color: #f2f2f2;">
+            <th style="padding: 5px; text-align: center; border: 1px solid #000; width: 40%;">商品名 / 品目</th>
+            <th style="padding: 5px; text-align: center; border: 1px solid #000; width: 15%;">数　量</th>
+            <th style="padding: 5px; text-align: center; border: 1px solid #000; width: 15%;">単　価</th>
+            <th style="padding: 5px; text-align: center; border: 1px solid #000; width: 15%;">金　額</th>
+            <th style="padding: 5px; text-align: center; border: 1px solid #000; width: 15%;">備　考</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${invoice.items.map((item, index) => `
+            <tr style="border: 1px solid #000;">
+              <td style="padding: 5px; border: 1px solid #000; font-size: 12px;">${item.description}</td>
+              <td style="padding: 5px; border: 1px solid #000; text-align: right; font-size: 12px;">${parseFloat(item.quantity).toLocaleString()} ${index === 0 ? '個数' : index === 1 ? '台' : index === 2 ? '人' : index === 3 ? '個数' : 'Kg'}</td>
+              <td style="padding: 5px; border: 1px solid #000; text-align: right; font-size: 12px;">${parseFloat(item.unitPrice).toLocaleString()}</td>
+              <td style="padding: 5px; border: 1px solid #000; text-align: right; font-size: 12px;">${parseFloat(item.amount).toLocaleString()}</td>
+              <td style="padding: 5px; border: 1px solid #000; font-size: 12px;">${index === 1 ? '担当：○○' : ''}</td>
+            </tr>
+          `).join('')}
+          ${Array(Math.max(0, 15 - invoice.items.length)).fill().map(() => `
+            <tr style="border: 1px solid #000; height: 25px;">
+              <td style="padding: 5px; border: 1px solid #000;"></td>
+              <td style="padding: 5px; border: 1px solid #000;"></td>
+              <td style="padding: 5px; border: 1px solid #000;"></td>
+              <td style="padding: 5px; border: 1px solid #000;"></td>
+              <td style="padding: 5px; border: 1px solid #000;"></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+
+      <!-- 金額情報 -->
+      <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+        <div style="width: 50%; font-size: 12px;">
+          <p style="margin: 0 0 5px 0;">支払期限：${invoice.dueDate || '2021/12/31'}</p>
+          <p style="margin: 0;">※お振込手数料は御社にてご負担願います</p>
+        </div>
+        <table style="width: 45%; border-collapse: collapse;">
+          <tr style="border: 1px solid #000;">
+            <td style="padding: 5px 10px; border: 1px solid #000; text-align: center; background-color: #f2f2f2; width: 33%;">小　計 (税抜)</td>
+            <td style="padding: 5px 10px; border: 1px solid #000; text-align: right; width: 67%;">¥${invoice.subtotal.toLocaleString()}</td>
+          </tr>
+          <tr style="border: 1px solid #000;">
+            <td style="padding: 5px 10px; border: 1px solid #000; text-align: center; background-color: #f2f2f2;">消費税 (10%)</td>
+            <td style="padding: 5px 10px; border: 1px solid #000; text-align: right;">¥${invoice.taxAmount.toLocaleString()}</td>
+          </tr>
+          <tr style="border: 1px solid #000;">
+            <td style="padding: 5px 10px; border: 1px solid #000; text-align: center; background-color: #f2f2f2;">合　計 (税込)</td>
+            <td style="padding: 5px 10px; border: 1px solid #000; text-align: right; font-weight: bold;">¥${invoice.total.toLocaleString()}</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- 備考欄 -->
+      <div style="border: 1px solid #000; padding: 10px; min-height: 100px; margin-bottom: 20px;">
+        <p style="margin: 0 0 5px 0; font-weight: bold;">備考欄：</p>
+        <p style="margin: 0;">${invoice.notes || ''}</p>
+      </div>
+    </div>
   `
 };
 
@@ -254,7 +381,9 @@ function App() {
     client: {
       name: '',
       address: '',
-      postalCode: ''
+      postalCode: '',
+      departmentName: '',
+      contactPerson: ''
     },
     bankInfo: {
       bankName: '',
@@ -271,7 +400,12 @@ function App() {
     total: 0,
     notes: '振込手数料はご負担願います。',
     sendToEmail: '',
-    template: 'standard'
+    template: 'standard',
+    templateSpecific: {
+      japanese_traditional: {
+        hasStamp: true
+      }
+    }
   });
 
   // トグルの状態を管理するステート
@@ -281,6 +415,25 @@ function App() {
     bankInfo: false,
     itemsInfo: true  // 品目セクションの初期状態は開いている
   });
+
+  // 各テンプレートで表示する項目を定義
+  const templateFields = {
+    standard: {
+      clientContact: false,
+      clientDepartment: false,
+      stampField: false
+    },
+    modern: {
+      clientContact: false,
+      clientDepartment: false,
+      stampField: false
+    },
+    japanese_traditional: {
+      clientContact: true,  // 担当者名フィールド
+      clientDepartment: true, // 部署名フィールド
+      stampField: true     // 印鑑欄表示
+    }
+  };
 
   const invoiceRef = useRef(null);
 
@@ -431,10 +584,38 @@ function App() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setInvoice({
-      ...invoice,
-      [name]: value
-    });
+    
+    if (name === 'template') {
+      // テンプレート変更時、テンプレート固有の初期値を設定
+      let updatedInvoice = { ...invoice, [name]: value };
+      
+      if (value === 'japanese_traditional') {
+        // 日本語テンプレート用のデフォルト値を設定
+        updatedInvoice.notes = 'お振込手数料は御社にてご負担願います。';
+        
+        // もし担当者や部署が空なら、デフォルト値を設定
+        if (!updatedInvoice.client.contactPerson) {
+          updatedInvoice.client = {
+            ...updatedInvoice.client,
+            contactPerson: '○○　□□'
+          };
+        }
+        
+        if (!updatedInvoice.client.departmentName) {
+          updatedInvoice.client = {
+            ...updatedInvoice.client,
+            departmentName: '営業部'
+          };
+        }
+      }
+      
+      setInvoice(updatedInvoice);
+    } else {
+      setInvoice({
+        ...invoice,
+        [name]: value
+      });
+    }
   };
 
   // セクションの開閉を切り替える関数
@@ -637,6 +818,12 @@ ${invoice.company.name}`
     }
   };
 
+  // テンプレートで特定のフィールドを表示すべきかを判定
+  const shouldShowField = (fieldName) => {
+    const currentTemplate = invoice.template;
+    return templateFields[currentTemplate] && templateFields[currentTemplate][fieldName];
+  };
+
   return (
     <div className="App">
       <div className="container">
@@ -786,6 +973,31 @@ ${invoice.company.name}`
                   onChange={handleClientChange} 
                 ></textarea>
               </div>
+              
+              {/* 伝統的なテンプレート用の追加フィールド */}
+              {shouldShowField('clientDepartment') && (
+                <div className="form-group">
+                  <label>部署名 <span className="optional-label">任意</span></label>
+                  <input 
+                    type="text" 
+                    name="departmentName" 
+                    value={invoice.client.departmentName} 
+                    onChange={handleClientChange} 
+                  />
+                </div>
+              )}
+              
+              {shouldShowField('clientContact') && (
+                <div className="form-group">
+                  <label>担当者名 <span className="optional-label">任意</span></label>
+                  <input 
+                    type="text" 
+                    name="contactPerson" 
+                    value={invoice.client.contactPerson} 
+                    onChange={handleClientChange} 
+                  />
+                </div>
+              )}
             </div>
           )}
           
@@ -1001,8 +1213,36 @@ ${invoice.company.name}`
             >
               <option value="standard">標準</option>
               <option value="modern">モダン</option>
+              <option value="japanese_traditional">伝統的な日本語請求書</option>
             </select>
           </div>
+          
+          {/* テンプレート固有の設定 */}
+          {shouldShowField('stampField') && (
+            <div className="form-group">
+              <label>登録印欄 <span className="optional-label">任意</span></label>
+              <div className="checkbox-container">
+                <input
+                  type="checkbox"
+                  id="hasStamp"
+                  checked={invoice.templateSpecific.japanese_traditional.hasStamp}
+                  onChange={(e) => {
+                    setInvoice({
+                      ...invoice,
+                      templateSpecific: {
+                        ...invoice.templateSpecific,
+                        japanese_traditional: {
+                          ...invoice.templateSpecific.japanese_traditional,
+                          hasStamp: e.target.checked
+                        }
+                      }
+                    });
+                  }}
+                />
+                <label htmlFor="hasStamp">登録印欄を表示する</label>
+              </div>
+            </div>
+          )}
           
           <div className="actions">
             <button className="generate-pdf" onClick={generatePDF}>
