@@ -384,17 +384,38 @@ button:hover {
   background-color: #f9f9f9;
 }
 
-/* セクションヘッダーのスタイル */
-.section-header h2 {
-  cursor: pointer;
+/* セクションヘッダーとクリアボタンのスタイル */
+.section-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
-  position: relative;
+  margin-bottom: 10px;
+  cursor: pointer;
 }
 
-.section-header h2:hover {
+/* セクションのh2のスタイル */
+.section-header h2 {
+  margin: 0;
+  padding: 8px 0;
+}
+
+.section-header:hover h2 {
   color: #3498db;
+}
+
+.clear-section-btn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  z-index: 10; /* クリックイベントの重なりを防ぐ */
+}
+
+.clear-section-btn:hover {
+  background-color: #d32f2f;
 }
 
 /* セクションコンテンツのスタイル */

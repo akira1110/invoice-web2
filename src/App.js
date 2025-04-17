@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import './App.css';
@@ -455,55 +455,97 @@ const invoiceTemplates = {
   `
 };
 
+// invoiceの初期状態を別の変数として定義
+const defaultInvoiceState = {
+  invoiceNumber: '',
+  issueDate: '',
+  dueDate: '',
+  company: {
+    name: '',
+    address: '',
+    postalCode: '',
+    phone: '',
+    email: '',
+    logo: '',
+    stampImage: '',
+    registrationNumber: ''
+  },
+  client: {
+    name: '',
+    address: '',
+    postalCode: '',
+    departmentName: '',
+    contactPerson: ''
+  },
+  bankInfo: {
+    bankName: '',
+    branchName: '',
+    accountType: '',
+    accountNumber: '',
+    accountName: ''
+  },
+  items: [
+    { description: '', quantity: 1, unitPrice: 0, amount: 0, taxRate: 10, remarks: '' }
+  ],
+  subtotal: 0,
+  taxAmount: 0,
+  total: 0,
+  notes: '',
+  // デフォルトテンプレート
+  template: 'standard',
+  // テンプレート固有の設定
+  templateSpecific: {
+    japanese_traditional: {
+      hasStamp: true
+    }
+  },
+  // 端数処理方法（デフォルトは切り捨て）
+  roundingMethod: 'floor'
+};
+
 function App() {
-  const [invoice, setInvoice] = useState({
-    invoiceNumber: '',
-    issueDate: '',
-    dueDate: '',
-    company: {
-      name: '',
-      address: '',
-      postalCode: '',
-      phone: '',
-      email: '',
-      logo: '',
-      stampImage: '',
-      registrationNumber: ''  // 追加：登録番号
-    },
-    client: {
-      name: '',
-      address: '',
-      postalCode: '',
-      departmentName: '',
-      contactPerson: ''
-    },
-    bankInfo: {
-      bankName: '',
-      branchName: '',
-      accountType: '',
-      accountNumber: '',
-      accountName: ''
-    },
-    items: [
-      { description: '', quantity: 1, unitPrice: 0, amount: 0, taxRate: 10, remarks: '' }
-    ],
-    subtotal: 0,
-    taxAmount: 0,
-    total: 0,
-    notes: '',
-    // デフォルトテンプレート
-    template: 'standard',
-    // テンプレート固有の設定
-    templateSpecific: {
-      japanese_traditional: {
-        hasStamp: true
-      }
-    },
-    // 端数処理方法（デフォルトは切り捨て）
-    roundingMethod: 'floor'
+  // ローカルストレージからデータを取得して初期化するか、デフォルト値を使用
+  const [invoice, setInvoice] = useState(() => {
+    try {
+      const savedInvoice = localStorage.getItem('invoiceData');
+      return savedInvoice ? JSON.parse(savedInvoice) : defaultInvoiceState;
+    } catch (error) {
+      console.error('保存されたデータの読み込みに失敗しました:', error);
+      return defaultInvoiceState;
+    }
   });
 
-  // トグルの状態を管理するステート
+  // invoiceステートが変更されたらローカルストレージに保存（このuseEffectはそのまま）
+  useEffect(() => {
+    try {
+      localStorage.setItem('invoiceData', JSON.stringify(invoice));
+    } catch (error) {
+      console.error('請求書データの保存に失敗しました:', error);
+    }
+  }, [JSON.stringify(invoice)]);
+
+  // ローカルストレージのデータが存在するかをチェック
+  const [hasStoredData, setHasStoredData] = useState(false);
+  
+  useEffect(() => {
+    try {
+      const savedInvoice = localStorage.getItem('invoiceData');
+      setHasStoredData(!!savedInvoice);
+    } catch (error) {
+      console.error('ローカルストレージの確認に失敗しました:', error);
+    }
+  }, []);
+
+  // ローカルストレージデータを完全にクリアする関数
+  const clearAllStoredData = () => {
+    if (window.confirm('保存されたすべてのデータを削除してもよろしいですか？この操作は元に戻せません。')) {
+      localStorage.removeItem('invoiceData');
+      // デフォルト状態のinvoiceに戻す
+      setInvoice(defaultInvoiceState);
+      setHasStoredData(false);
+    }
+  };
+
   const [toggleState, setToggleState] = useState({
     companyInfo: false,
     clientInfo: false,
@@ -1081,6 +1123,68 @@ ${invoice.company.name}`
     roundingMethod: 'floor'
   };
 
+  // セクションのデータをクリアする関数
+  const clearSectionData = (section) => {
+    if (!window.confirm(`${section}の入力データをクリアしてもよろしいですか？`)) {
+      return;
+    }
+
+    let updatedInvoice = { ...invoice };
+
+    switch (section) {
+      case '請求元情報':
+        updatedInvoice.company = {
+          name: '',
+          address: '',
+          postalCode: '',
+          phone: '',
+          email: '',
+          logo: '',
+          stampImage: '',
+          registrationNumber: ''
+        };
+        break;
+      case '請求先情報':
+        updatedInvoice.client = {
+          name: '',
+          address: '',
+          postalCode: '',
+          departmentName: '',
+          contactPerson: ''
+        };
+        break;
+      case '銀行振込先情報':
+        updatedInvoice.bankInfo = {
+          bankName: '',
+          branchName: '',
+          accountType: '',
+          accountNumber: '',
+          accountName: ''
+        };
+        break;
+      case '品目':
+        updatedInvoice.items = [
+          { description: '', quantity: 1, unitPrice: 0, amount: 0, taxRate: 10, remarks: '' }
+        ];
+        updatedInvoice.subtotal = 0;
+        updatedInvoice.taxAmount = 0;
+        updatedInvoice.total = 0;
+        break;
+      case '請求書情報':
+        updatedInvoice.invoiceNumber = '';
+        updatedInvoice.issueDate = '';
+        updatedInvoice.dueDate = '';
+        break;
+      case '備考':
+        updatedInvoice.notes = '';
+        break;
+      default:
+        break;
+    }
+
+    setInvoice(updatedInvoice);
+  };
+
   return (
     <div className="App">
       <div className="container">
@@ -1218,7 +1322,11 @@ ${invoice.company.name}`
             </div>
           )}
           
-          <h2>請求書情報</h2>
+          {/* 請求書情報セクション */}
+          <div className="section-header">
+            <h2>請求書情報</h2>
+            <button type="button" className="clear-section-btn" onClick={() => clearSectionData('請求書情報')}>クリア</button>
+          </div>
           <div className="form-row">
             <div className="form-group">
               <label>請求書番号 <span className="optional-label">任意</span></label>
@@ -1264,10 +1372,21 @@ ${invoice.company.name}`
             </div>
           </div>
           
-          <div className="section-header">
-            <h2 onClick={() => toggleSection('companyInfo')}>
+          {/* 請求元情報のセクションヘッダーを修正 */}
+          <div className="section-header" onClick={() => toggleSection('companyInfo')}>
+            <h2>
               請求元情報 {toggleState.companyInfo ? '▼' : '▶'}
             </h2>
+            <button 
+              type="button" 
+              className="clear-section-btn" 
+              onClick={(e) => {
+                e.stopPropagation(); // クリックイベントの伝播を停止
+                clearSectionData('請求元情報');
+              }}
+            >
+              クリア
+            </button>
           </div>
           {toggleState.companyInfo && (
             <div className="section-content">
@@ -1399,10 +1518,21 @@ ${invoice.company.name}`
             </div>
           )}
           
-          <div className="section-header">
-            <h2 onClick={() => toggleSection('clientInfo')}>
+          {/* 請求先情報のセクションヘッダーを修正 */}
+          <div className="section-header" onClick={() => toggleSection('clientInfo')}>
+            <h2>
               請求先情報 {toggleState.clientInfo ? '▼' : '▶'}
             </h2>
+            <button 
+              type="button" 
+              className="clear-section-btn" 
+              onClick={(e) => {
+                e.stopPropagation(); // クリックイベントの伝播を停止
+                clearSectionData('請求先情報');
+              }}
+            >
+              クリア
+            </button>
           </div>
           {toggleState.clientInfo && (
             <div className="section-content">
@@ -1461,10 +1591,21 @@ ${invoice.company.name}`
             </div>
           )}
           
-          <div className="section-header">
-            <h2 onClick={() => toggleSection('bankInfo')}>
+          {/* 銀行振込先情報のセクションヘッダーを修正 */}
+          <div className="section-header" onClick={() => toggleSection('bankInfo')}>
+            <h2>
               銀行振込先情報 {toggleState.bankInfo ? '▼' : '▶'}
             </h2>
+            <button 
+              type="button" 
+              className="clear-section-btn" 
+              onClick={(e) => {
+                e.stopPropagation(); // クリックイベントの伝播を停止
+                clearSectionData('銀行振込先情報');
+              }}
+            >
+              クリア
+            </button>
           </div>
           {toggleState.bankInfo && (
             <div className="section-content">
@@ -1516,10 +1657,21 @@ ${invoice.company.name}`
             </div>
           )}
           
-          <div className="section-header">
-            <h2 onClick={() => toggleSection('itemsInfo')}>
+          {/* 品目のセクションヘッダーを修正 */}
+          <div className="section-header" onClick={() => toggleSection('itemsInfo')}>
+            <h2>
               品目 {toggleState.itemsInfo ? '▼' : '▶'}
             </h2>
+            <button 
+              type="button" 
+              className="clear-section-btn" 
+              onClick={(e) => {
+                e.stopPropagation(); // クリックイベントの伝播を停止
+                clearSectionData('品目');
+              }}
+            >
+              クリア
+            </button>
           </div>
           {toggleState.itemsInfo && (
             <div className="section-content">
@@ -1689,13 +1841,19 @@ ${invoice.company.name}`
             <button className="send-email" onClick={sendPdfByEmail}>
               メールで送信
             </button>
+            {hasStoredData && (
+              <button className="clear-storage" onClick={clearAllStoredData}>
+                保存データをすべて削除
+              </button>
+            )}
           </div>
         </div>
       </div>
       <div className="footer-notice">
         <p>※ このツールで入力された情報はサーバーに一切保存されません。</p>
-        <p>※ ソースコードは <a href="https://github.com/akira1110/invoice-web2" target="_blank" rel="noopener noreferrer">GitHub</a> で公開しています。</p>
+        <p>※ 入力内容は、ローカルストレージに保存されます。他の人と共有する端末では注意してください。</p>
         <p>※ 税率ごと（8%・10%）に合計金額を算出後、端数処理を適用します。</p>
+        <p>※ ソースコードは <a href="https://github.com/akira1110/invoice-web2" target="_blank" rel="noopener noreferrer">GitHub</a> で公開しています。</p>
       </div>
     </div>
   );
