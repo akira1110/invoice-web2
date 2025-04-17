@@ -458,6 +458,12 @@ function App() {
 
   const invoiceRef = useRef(null);
 
+  // サンプル表示用の状態を追加
+  const [samplePreview, setSamplePreview] = useState({
+    show: false,
+    template: ''
+  });
+
   const handleCompanyChange = (e) => {
     const { name, value } = e.target;
     setInvoice({
@@ -847,12 +853,211 @@ ${invoice.company.name}`
     return templateFields[currentTemplate] && templateFields[currentTemplate][fieldName];
   };
 
+  // サンプルプレビューを表示する関数
+  const showSamplePreview = (template) => {
+    setSamplePreview({
+      show: true,
+      template: template
+    });
+  };
+
+  // サンプルプレビューを閉じる関数
+  const closeSamplePreview = () => {
+    setSamplePreview({
+      show: false,
+      template: ''
+    });
+  };
+
+  // テンプレート説明テキスト
+  const templateDescriptions = {
+    standard: 'シンプルで読みやすい基本的なレイアウト。どのような業種にも適した万能なデザインです。',
+    modern: '現代的でスタイリッシュなデザイン。青色を基調とした洗練されたレイアウトが特徴です。',
+    japanese_traditional: '日本の伝統的な請求書フォーマットを踏襲したデザイン。登録印欄や枠線のある表組みが特徴です。'
+  };
+
+  // サンプルデータ
+  const sampleData = {
+    invoiceNumber: 'INV-2023001',
+    issueDate: '2023-05-15',
+    dueDate: '2023-06-15',
+    company: {
+      name: 'サンプル株式会社',
+      address: '東京都渋谷区恵比寿1-2-3 サンプルビル5F',
+      postalCode: '150-0013',
+      phone: '03-1234-5678',
+      email: 'info@sample-company.co.jp',
+      logo: '',
+      stampImage: ''
+    },
+    client: {
+      name: '取引先企業株式会社',
+      address: '東京都千代田区丸の内1-1-1 取引先ビル10F',
+      postalCode: '100-0005',
+      departmentName: '経理部',
+      contactPerson: '山田 太郎'
+    },
+    bankInfo: {
+      bankName: 'サンプル銀行',
+      branchName: '恵比寿支店',
+      accountType: '普通',
+      accountNumber: '1234567',
+      accountName: 'サンプル（カ'
+    },
+    items: [
+      { description: 'Webサイト制作費', quantity: 1, unitPrice: 350000, amount: 350000, taxRate: 10, remarks: '御社ホームページリニューアル' },
+      { description: 'サーバー保守管理費（4月分）', quantity: 1, unitPrice: 50000, amount: 50000, taxRate: 10, remarks: '月額契約' },
+      { description: 'SEO対策費', quantity: 1, unitPrice: 100000, amount: 100000, taxRate: 10, remarks: '' }
+    ],
+    subtotal: 500000,
+    taxAmount: 50000,
+    total: 550000,
+    notes: 'お振込手数料は御社にてご負担願います。\nご不明点がございましたら、担当者までお問い合わせください。',
+    // テンプレート固有の設定を追加
+    templateSpecific: {
+      japanese_traditional: {
+        hasStamp: true
+      }
+    }
+  };
+
   return (
     <div className="App">
       <div className="container">
         <h1>請求書作成ツール</h1>
         
         <div className="invoice-form">
+          <div className="template-selection">
+            <h2>テンプレート選択</h2>
+            <div className="template-options">
+              <div className={`template-option ${invoice.template === 'standard' ? 'selected' : ''}`}>
+                <div className="template-preview" onClick={() => handleInputChange({target: {name: 'template', value: 'standard'}})}>
+                  <div className="template-thumbnail simple-template">
+                    <div className="thumbnail-header">請求書</div>
+                    <div className="thumbnail-content">
+                      <div className="thumbnail-lines"></div>
+                      <div className="thumbnail-table"></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="template-description">
+                  <p>{templateDescriptions.standard}</p>
+                </div>
+                <div className="template-actions">
+                  <div className="template-name">
+                    <input 
+                      type="radio" 
+                      id="template-standard" 
+                      name="template" 
+                      value="standard" 
+                      checked={invoice.template === 'standard'} 
+                      onChange={handleInputChange} 
+                    />
+                    <label htmlFor="template-standard">シンプル</label>
+                  </div>
+                  <button 
+                    type="button" 
+                    className="sample-preview-btn"
+                    onClick={() => showSamplePreview('standard')}
+                  >
+                    サンプル確認
+                  </button>
+                </div>
+              </div>
+              
+              <div className={`template-option ${invoice.template === 'modern' ? 'selected' : ''}`}>
+                <div className="template-preview" onClick={() => handleInputChange({target: {name: 'template', value: 'modern'}})}>
+                  <div className="template-thumbnail modern-template">
+                    <div className="thumbnail-header modern">請求書</div>
+                    <div className="thumbnail-content">
+                      <div className="thumbnail-boxes"></div>
+                      <div className="thumbnail-table modern"></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="template-description">
+                  <p>{templateDescriptions.modern}</p>
+                </div>
+                <div className="template-actions">
+                  <div className="template-name">
+                    <input 
+                      type="radio" 
+                      id="template-modern" 
+                      name="template" 
+                      value="modern" 
+                      checked={invoice.template === 'modern'} 
+                      onChange={handleInputChange} 
+                    />
+                    <label htmlFor="template-modern">モダン</label>
+                  </div>
+                  <button 
+                    type="button" 
+                    className="sample-preview-btn"
+                    onClick={() => showSamplePreview('modern')}
+                  >
+                    サンプル確認
+                  </button>
+                </div>
+              </div>
+              
+              <div className={`template-option ${invoice.template === 'japanese_traditional' ? 'selected' : ''}`}>
+                <div className="template-preview" onClick={() => handleInputChange({target: {name: 'template', value: 'japanese_traditional'}})}>
+                  <div className="template-thumbnail japanese-template">
+                    <div className="thumbnail-header japanese">請求書</div>
+                    <div className="thumbnail-content">
+                      <div className="thumbnail-stamp"></div>
+                      <div className="thumbnail-table-bordered"></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="template-description">
+                  <p>{templateDescriptions.japanese_traditional}</p>
+                </div>
+                <div className="template-actions">
+                  <div className="template-name">
+                    <input 
+                      type="radio" 
+                      id="template-japanese" 
+                      name="template" 
+                      value="japanese_traditional" 
+                      checked={invoice.template === 'japanese_traditional'} 
+                      onChange={handleInputChange} 
+                    />
+                    <label htmlFor="template-japanese">スタンダード</label>
+                  </div>
+                  <button 
+                    type="button" 
+                    className="sample-preview-btn"
+                    onClick={() => showSamplePreview('japanese_traditional')}
+                  >
+                    サンプル確認
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* サンプルプレビューモーダル */}
+          {samplePreview.show && (
+            <div className="sample-preview-modal">
+              <div className="sample-preview-content">
+                <div className="sample-preview-header">
+                  <h3>
+                    {samplePreview.template === 'standard' && 'シンプルテンプレート'}
+                    {samplePreview.template === 'modern' && 'モダンテンプレート'}
+                    {samplePreview.template === 'japanese_traditional' && 'スタンダードテンプレート'}
+                  </h3>
+                  <button className="close-preview" onClick={closeSamplePreview}>×</button>
+                </div>
+                <div className="sample-preview-body">
+                  <div dangerouslySetInnerHTML={{ 
+                    __html: invoiceTemplates[samplePreview.template](sampleData) 
+                  }} />
+                </div>
+              </div>
+            </div>
+          )}
+          
           <h2>請求書情報</h2>
           <div className="form-row">
             <div className="form-group">
@@ -1283,19 +1488,6 @@ ${invoice.company.name}`
               onChange={handleInputChange}
               placeholder="example@example.com"
             />
-          </div>
-          
-          <div className="form-group">
-            <label>テンプレート選択</label>
-            <select
-              name="template"
-              value={invoice.template}
-              onChange={handleInputChange}
-            >
-              <option value="standard">シンプル</option>
-              <option value="modern">モダン</option>
-              <option value="japanese_traditional">スタンダード</option>
-            </select>
           </div>
           
           <div className="actions">
