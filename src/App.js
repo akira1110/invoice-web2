@@ -269,14 +269,15 @@ const invoiceTemplates = {
             </tr>
           </table>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            ${invoice.templateSpecific.japanese_traditional.hasStamp ? 
-            `<div style="font-size: 12px; border: 1px solid #000; padding: 5px 10px; width: 50px;">
-              登録印
-            </div>` : ''}
-            <div${!invoice.templateSpecific.japanese_traditional.hasStamp ? ' style="width: 100%; text-align: center;"' : ''}>
+            <!-- 企業ロゴと登録印の位置を入れ替えた -->
+            <div${invoice.templateSpecific.japanese_traditional.hasStamp ? ' style="max-width: 70%;"' : ' style="width: 100%; text-align: center;"'}>
               ${invoice.company.logo ? `<img src="${invoice.company.logo}" style="max-height: 60px; max-width: 200px;">` : 
               `<div style="font-weight: bold; font-size: 20px;">${invoice.company.name || ''}</div>`}
             </div>
+            ${invoice.templateSpecific.japanese_traditional.hasStamp ? 
+            `<div style="border: 1px solid #000; padding: 5px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+              ${invoice.company.stampImage ? `<img src="${invoice.company.stampImage}" style="max-width: 50px; max-height: 50px;">` : ''}
+            </div>` : ''}
           </div>
           <div style="text-align: left; margin-top: 10px;">
             <p style="margin: 0 0 3px 0; font-size: 12px; font-weight: bold;">${invoice.company.name || ''}</p>
@@ -395,7 +396,8 @@ function App() {
       postalCode: '',
       phone: '',
       email: '',
-      logo: ''
+      logo: '',
+      stampImage: ''
     },
     client: {
       name: '',
@@ -477,6 +479,23 @@ function App() {
           company: {
             ...invoice.company,
             logo: reader.result
+          }
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleStampUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setInvoice({
+          ...invoice,
+          company: {
+            ...invoice.company,
+            stampImage: reader.result
           }
         });
       };
@@ -920,6 +939,56 @@ ${invoice.company.name}`
                   </div>
                 )}
               </div>
+              {/* 印鑑画像アップロード欄の追加 */}
+              {invoice.template === 'japanese_traditional' && (
+                <div className="form-group">
+                  <label>印鑑 <span className="optional-label">任意</span></label>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleStampUpload} 
+                    className="stamp-upload"
+                  />
+                  {invoice.company.stampImage && (
+                    <div className="stamp-preview">
+                      <img src={invoice.company.stampImage} alt="印鑑プレビュー" style={{maxHeight: "80px", maxWidth: "80px"}} />
+                      <button 
+                        type="button" 
+                        className="remove-stamp" 
+                        onClick={() => setInvoice({...invoice, company: {...invoice.company, stampImage: ''}})}
+                      >
+                        印鑑を削除
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+              {/* 登録印欄の設定を印鑑の下に移動 */}
+              {invoice.template === 'japanese_traditional' && (
+                <div className="form-group">
+                  <label>登録印欄 <span className="optional-label">任意</span></label>
+                  <div className="checkbox-container">
+                    <input
+                      type="checkbox"
+                      id="hasStamp"
+                      checked={invoice.templateSpecific.japanese_traditional.hasStamp}
+                      onChange={(e) => {
+                        setInvoice({
+                          ...invoice,
+                          templateSpecific: {
+                            ...invoice.templateSpecific,
+                            japanese_traditional: {
+                              ...invoice.templateSpecific.japanese_traditional,
+                              hasStamp: e.target.checked
+                            }
+                          }
+                        });
+                      }}
+                    />
+                    <label htmlFor="hasStamp">登録印欄を表示する</label>
+                  </div>
+                </div>
+              )}
               <div className="form-row">
                 <div className="form-group">
                   <label>電話番号 <span className="optional-label">任意</span></label>
@@ -1228,33 +1297,6 @@ ${invoice.company.name}`
               <option value="japanese_traditional">伝統的な日本語請求書</option>
             </select>
           </div>
-          
-          {/* テンプレート固有の設定 */}
-          {shouldShowField('stampField') && (
-            <div className="form-group">
-              <label>登録印欄 <span className="optional-label">任意</span></label>
-              <div className="checkbox-container">
-                <input
-                  type="checkbox"
-                  id="hasStamp"
-                  checked={invoice.templateSpecific.japanese_traditional.hasStamp}
-                  onChange={(e) => {
-                    setInvoice({
-                      ...invoice,
-                      templateSpecific: {
-                        ...invoice.templateSpecific,
-                        japanese_traditional: {
-                          ...invoice.templateSpecific.japanese_traditional,
-                          hasStamp: e.target.checked
-                        }
-                      }
-                    });
-                  }}
-                />
-                <label htmlFor="hasStamp">登録印欄を表示する</label>
-              </div>
-            </div>
-          )}
           
           <div className="actions">
             <button className="generate-pdf" onClick={generatePDF}>
