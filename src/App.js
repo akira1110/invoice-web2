@@ -85,13 +85,33 @@ const invoiceTemplates = {
             <td style="padding: 3px; font-weight: bold; text-align: left;">小計:</td>
             <td style="padding: 3px; text-align: right;">¥${invoice.subtotal.toLocaleString()}</td>
           </tr>
+          ${invoice.items.some(item => parseFloat(item.taxRate) === 8) ? `
           <tr>
-            <td style="padding: 3px; font-weight: bold; text-align: left;">消費税:</td>
-            <td style="padding: 3px; text-align: right;">¥${invoice.taxAmount.toLocaleString()}</td>
+            <td style="padding: 3px; font-weight: bold; text-align: left;">消費税 (8%):</td>
+            <td style="padding: 3px; text-align: right;">¥${Math.round(invoice.items.reduce((sum, item) => {
+              const itemTaxRate = parseFloat(item.taxRate) || 0;
+              const itemAmount = parseFloat(item.amount) || 0;
+              return sum + (itemTaxRate === 8 ? itemAmount * 0.08 : 0);
+            }, 0)).toLocaleString()}</td>
           </tr>
-          <tr style="border-top: 1px solid #ddd;">
-            <td style="padding: 3px; font-weight: bold; text-align: left; font-size: 14px;">合計金額:</td>
-            <td style="padding: 3px; text-align: right; font-weight: bold; font-size: 14px;">¥${invoice.total.toLocaleString()}</td>
+          ` : ''}
+          ${invoice.items.some(item => parseFloat(item.taxRate) === 10) ? `
+          <tr>
+            <td style="padding: 3px; font-weight: bold; text-align: left;">消費税 (10%):</td>
+            <td style="padding: 3px; text-align: right;">¥${Math.round(invoice.items.reduce((sum, item) => {
+              const itemTaxRate = parseFloat(item.taxRate) || 0;
+              const itemAmount = parseFloat(item.amount) || 0;
+              return sum + (itemTaxRate === 10 ? itemAmount * 0.10 : 0);
+            }, 0)).toLocaleString()}</td>
+          </tr>
+          ` : ''}
+          <tr style="border: 1px solid #000;">
+            <td style="padding: 5px 10px; border: 1px solid #000; text-align: center; background-color: #f2f2f2;">消費税合計</td>
+            <td style="padding: 5px 10px; border: 1px solid #000; text-align: right;">¥${invoice.taxAmount.toLocaleString()}</td>
+          </tr>
+          <tr style="border: 1px solid #000;">
+            <td style="padding: 5px 10px; border: 1px solid #000; text-align: center; background-color: #f2f2f2;">合　計 (税込)</td>
+            <td style="padding: 5px 10px; border: 1px solid #000; text-align: right; font-weight: bold;">¥${invoice.total.toLocaleString()}</td>
           </tr>
         </table>
       </div>
@@ -212,8 +232,28 @@ const invoiceTemplates = {
             <p style="margin: 0; font-size: 12px;"><strong>小計:</strong></p>
             <p style="margin: 0; font-size: 12px;">¥${invoice.subtotal.toLocaleString()}</p>
           </div>
+          ${invoice.items.some(item => parseFloat(item.taxRate) === 8) ? `
+          <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <p style="margin: 0; font-size: 12px;"><strong>消費税 (8%):</strong></p>
+            <p style="margin: 0; font-size: 12px;">¥${Math.round(invoice.items.reduce((sum, item) => {
+              const itemTaxRate = parseFloat(item.taxRate) || 0;
+              const itemAmount = parseFloat(item.amount) || 0;
+              return sum + (itemTaxRate === 8 ? itemAmount * 0.08 : 0);
+            }, 0)).toLocaleString()}</p>
+          </div>
+          ` : ''}
+          ${invoice.items.some(item => parseFloat(item.taxRate) === 10) ? `
+          <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <p style="margin: 0; font-size: 12px;"><strong>消費税 (10%):</strong></p>
+            <p style="margin: 0; font-size: 12px;">¥${Math.round(invoice.items.reduce((sum, item) => {
+              const itemTaxRate = parseFloat(item.taxRate) || 0;
+              const itemAmount = parseFloat(item.amount) || 0;
+              return sum + (itemTaxRate === 10 ? itemAmount * 0.10 : 0);
+            }, 0)).toLocaleString()}</p>
+          </div>
+          ` : ''}
           <div style="display: flex; justify-content: space-between; margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px solid #eee;">
-            <p style="margin: 0; font-size: 12px;"><strong>消費税:</strong></p>
+            <p style="margin: 0; font-size: 12px;"><strong>消費税合計:</strong></p>
             <p style="margin: 0; font-size: 12px;">¥${invoice.taxAmount.toLocaleString()}</p>
           </div>
           <div style="display: flex; justify-content: space-between; font-weight: bold; color: #3498db;">
@@ -369,8 +409,28 @@ const invoiceTemplates = {
             <td style="padding: 5px 10px; border: 1px solid #000; text-align: center; background-color: #f2f2f2; width: 33%;">小　計 (税抜)</td>
             <td style="padding: 5px 10px; border: 1px solid #000; text-align: right; width: 67%;">¥${invoice.subtotal.toLocaleString()}</td>
           </tr>
+          ${invoice.items.some(item => parseFloat(item.taxRate) === 8) ? `
+          <tr style="border: 1px solid #000;">
+            <td style="padding: 5px 10px; border: 1px solid #000; text-align: center; background-color: #f2f2f2;">消費税 (8%)</td>
+            <td style="padding: 5px 10px; border: 1px solid #000; text-align: right;">¥${Math.round(invoice.items.reduce((sum, item) => {
+              const itemTaxRate = parseFloat(item.taxRate) || 0;
+              const itemAmount = parseFloat(item.amount) || 0;
+              return sum + (itemTaxRate === 8 ? itemAmount * 0.08 : 0);
+            }, 0)).toLocaleString()}</td>
+          </tr>
+          ` : ''}
+          ${invoice.items.some(item => parseFloat(item.taxRate) === 10) ? `
           <tr style="border: 1px solid #000;">
             <td style="padding: 5px 10px; border: 1px solid #000; text-align: center; background-color: #f2f2f2;">消費税 (10%)</td>
+            <td style="padding: 5px 10px; border: 1px solid #000; text-align: right;">¥${Math.round(invoice.items.reduce((sum, item) => {
+              const itemTaxRate = parseFloat(item.taxRate) || 0;
+              const itemAmount = parseFloat(item.amount) || 0;
+              return sum + (itemTaxRate === 10 ? itemAmount * 0.10 : 0);
+            }, 0)).toLocaleString()}</td>
+          </tr>
+          ` : ''}
+          <tr style="border: 1px solid #000;">
+            <td style="padding: 5px 10px; border: 1px solid #000; text-align: center; background-color: #f2f2f2;">消費税合計</td>
             <td style="padding: 5px 10px; border: 1px solid #000; text-align: right;">¥${invoice.taxAmount.toLocaleString()}</td>
           </tr>
           <tr style="border: 1px solid #000;">
@@ -425,14 +485,17 @@ function App() {
     subtotal: 0,
     taxAmount: 0,
     total: 0,
-    notes: '振込手数料はご負担願います。',
-    sendToEmail: '',
+    notes: '',
+    // デフォルトテンプレート
     template: 'standard',
+    // テンプレート固有の設定
     templateSpecific: {
       japanese_traditional: {
         hasStamp: true
       }
-    }
+    },
+    // 端数処理方法（デフォルトは切り捨て）
+    roundingMethod: 'floor'
   });
 
   // トグルの状態を管理するステート
@@ -556,13 +619,33 @@ function App() {
     // 小計、消費税、合計金額の計算
     const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
     
-    // 各品目ごとの消費税を計算
-    const taxAmount = items.reduce((sum, item) => {
-      const itemTaxRate = parseFloat(item.taxRate) || 0;
-      const itemAmount = parseFloat(item.amount) || 0;
-      return sum + Math.round(itemAmount * (itemTaxRate / 100) * 10) / 10;
-    }, 0);
+    // 税率ごとに品目をグループ化
+    const taxRate8Items = items.filter(item => (parseFloat(item.taxRate) || 0) === 8);
+    const taxRate10Items = items.filter(item => (parseFloat(item.taxRate) || 0) === 10);
     
+    // 各税率ごとの小計を計算
+    const subtotal8 = taxRate8Items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+    const subtotal10 = taxRate10Items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+    
+    // 選択された端数処理方法に基づいて税額を計算
+    let taxAmount8 = 0;
+    let taxAmount10 = 0;
+    
+    if (invoice.roundingMethod === 'floor') {
+      // 切り捨て
+      taxAmount8 = Math.floor(subtotal8 * 0.08);
+      taxAmount10 = Math.floor(subtotal10 * 0.10);
+    } else if (invoice.roundingMethod === 'ceil') {
+      // 切り上げ
+      taxAmount8 = Math.ceil(subtotal8 * 0.08);
+      taxAmount10 = Math.ceil(subtotal10 * 0.10);
+    } else {
+      // 四捨五入 (デフォルト)
+      taxAmount8 = Math.round(subtotal8 * 0.08);
+      taxAmount10 = Math.round(subtotal10 * 0.10);
+    }
+    
+    const taxAmount = taxAmount8 + taxAmount10;
     const total = subtotal + taxAmount;
     
     setInvoice({
@@ -588,13 +671,33 @@ function App() {
     // 小計、消費税、合計金額の再計算
     const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
     
-    // 各品目ごとの消費税を計算
-    const taxAmount = items.reduce((sum, item) => {
-      const itemTaxRate = parseFloat(item.taxRate) || 0;
-      const itemAmount = parseFloat(item.amount) || 0;
-      return sum + Math.round(itemAmount * (itemTaxRate / 100) * 10) / 10;
-    }, 0);
+    // 税率ごとに品目をグループ化
+    const taxRate8Items = items.filter(item => (parseFloat(item.taxRate) || 0) === 8);
+    const taxRate10Items = items.filter(item => (parseFloat(item.taxRate) || 0) === 10);
     
+    // 各税率ごとの小計を計算
+    const subtotal8 = taxRate8Items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+    const subtotal10 = taxRate10Items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+    
+    // 選択された端数処理方法に基づいて税額を計算
+    let taxAmount8 = 0;
+    let taxAmount10 = 0;
+    
+    if (invoice.roundingMethod === 'floor') {
+      // 切り捨て
+      taxAmount8 = Math.floor(subtotal8 * 0.08);
+      taxAmount10 = Math.floor(subtotal10 * 0.10);
+    } else if (invoice.roundingMethod === 'ceil') {
+      // 切り上げ
+      taxAmount8 = Math.ceil(subtotal8 * 0.08);
+      taxAmount10 = Math.ceil(subtotal10 * 0.10);
+    } else {
+      // 四捨五入 (デフォルト)
+      taxAmount8 = Math.round(subtotal8 * 0.08);
+      taxAmount10 = Math.round(subtotal10 * 0.10);
+    }
+    
+    const taxAmount = taxAmount8 + taxAmount10;
     const total = subtotal + taxAmount;
     
     setInvoice({
@@ -645,6 +748,49 @@ function App() {
       }
       
       setInvoice(updatedInvoice);
+    } else if (name === 'roundingMethod') {
+      // 端数処理方法が変更された場合、税額を再計算
+      const items = [...invoice.items];
+      
+      // 小計
+      const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+      
+      // 税率ごとに品目をグループ化
+      const taxRate8Items = items.filter(item => (parseFloat(item.taxRate) || 0) === 8);
+      const taxRate10Items = items.filter(item => (parseFloat(item.taxRate) || 0) === 10);
+      
+      // 各税率ごとの小計を計算
+      const subtotal8 = taxRate8Items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+      const subtotal10 = taxRate10Items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+      
+      // 選択された端数処理方法に基づいて税額を計算
+      let taxAmount8 = 0;
+      let taxAmount10 = 0;
+      
+      if (value === 'floor') {
+        // 切り捨て
+        taxAmount8 = Math.floor(subtotal8 * 0.08);
+        taxAmount10 = Math.floor(subtotal10 * 0.10);
+      } else if (value === 'ceil') {
+        // 切り上げ
+        taxAmount8 = Math.ceil(subtotal8 * 0.08);
+        taxAmount10 = Math.ceil(subtotal10 * 0.10);
+      } else {
+        // 四捨五入 (デフォルト)
+        taxAmount8 = Math.round(subtotal8 * 0.08);
+        taxAmount10 = Math.round(subtotal10 * 0.10);
+      }
+      
+      const taxAmount = taxAmount8 + taxAmount10;
+      const total = subtotal + taxAmount;
+      
+      setInvoice({
+        ...invoice,
+        [name]: value,
+        subtotal,
+        taxAmount,
+        total
+      });
     } else {
       setInvoice({
         ...invoice,
@@ -924,7 +1070,9 @@ ${invoice.company.name}`
       japanese_traditional: {
         hasStamp: true
       }
-    }
+    },
+    // 端数処理方法（デフォルトは切り捨て）
+    roundingMethod: 'floor'
   };
 
   return (
@@ -1092,6 +1240,21 @@ ${invoice.company.name}`
                 value={invoice.dueDate} 
                 onChange={handleInputChange} 
               />
+            </div>
+          </div>
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label>端数処理方法 <span className="optional-label">任意</span></label>
+              <select
+                name="roundingMethod"
+                value={invoice.roundingMethod}
+                onChange={handleInputChange}
+              >
+                <option value="floor">切り捨て</option>
+                <option value="ceil">切り上げ</option>
+                <option value="round">四捨五入</option>
+              </select>
             </div>
           </div>
           
@@ -1507,6 +1670,7 @@ ${invoice.company.name}`
       <div className="footer-notice">
         <p>※ このツールで入力された情報はサーバーに一切保存されません。</p>
         <p>※ ソースコードは <a href="https://github.com/akira1110/invoice-web2" target="_blank" rel="noopener noreferrer">GitHub</a> で公開しています。</p>
+        <p>※ 税率ごと（8%・10%）に合計金額を算出後、端数処理を適用します。</p>
       </div>
     </div>
   );
