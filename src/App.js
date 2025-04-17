@@ -1851,9 +1851,10 @@ ${invoice.company.name}`
       </div>
       <div className="footer-notice">
         <p>※ このツールで入力された情報はサーバーに一切保存されません。</p>
-        <p>※ 入力内容は、ローカルストレージに保存されます。他の人と共有する端末では注意してください。</p>
+        <p>※ 入力内容は、ご利用者様のブラウザのローカルストレージに保存されます。「保存データをすべて削除」からいつでも削除する事が可能です。</p>
         <p>※ 税率ごと（8%・10%）に合計金額を算出後、端数処理を適用します。</p>
         <p>※ ソースコードは <a href="https://github.com/akira1110/invoice-web2" target="_blank" rel="noopener noreferrer">GitHub</a> で公開しています。</p>
+        <p>※ <a href="https://forms.gle/obWsz4eEiahJZ5PH9" target="_blank" rel="noopener noreferrer">お問い合わせはこちら</a></p>
       </div>
     </div>
   );
