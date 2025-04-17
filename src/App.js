@@ -21,6 +21,7 @@ const invoiceTemplates = {
           ${invoice.invoiceNumber ? `<p style="margin: 3px 0;"><strong>請求書番号:</strong> ${invoice.invoiceNumber}</p>` : ''}
           ${invoice.issueDate ? `<p style="margin: 3px 0;"><strong>発行日:</strong> ${invoice.issueDate}</p>` : ''}
           ${invoice.dueDate ? `<p style="margin: 3px 0;"><strong>支払期限:</strong> ${invoice.dueDate}</p>` : ''}
+          ${invoice.company.registrationNumber ? `<p style="margin: 3px 0;"><strong>登録番号:</strong> ${invoice.company.registrationNumber}</p>` : ''}
         </div>
         <div style="width: 40%; text-align: right;">
           <p style="margin: 3px 0; font-size: 16px;"><strong>合計金額:</strong> ¥${invoice.total.toLocaleString()}</p>
@@ -168,6 +169,7 @@ const invoiceTemplates = {
             ${invoice.invoiceNumber ? `<p style="margin: 2px 0; font-size: 12px;"><strong>請求書番号:</strong> #${invoice.invoiceNumber}</p>` : ''}
             ${invoice.issueDate ? `<p style="margin: 2px 0; font-size: 12px;"><strong>発行日:</strong> ${invoice.issueDate}</p>` : ''}
             ${invoice.dueDate ? `<p style="margin: 2px 0; font-size: 12px;"><strong>支払期限:</strong> ${invoice.dueDate}</p>` : ''}
+            ${invoice.company.registrationNumber ? `<p style="margin: 2px 0; font-size: 12px;"><strong>登録番号:</strong> ${invoice.company.registrationNumber}</p>` : ''}
           </div>
         </div>
       </div>
@@ -313,6 +315,8 @@ const invoiceTemplates = {
               ${invoice.issueDate ? 
               `<td style="text-align: right; font-size: 12px; padding: 2px;">請求日 : ${invoice.issueDate}</td>` : ''}
             </tr>
+            ${invoice.company.registrationNumber ? 
+            `<tr><td style="text-align: right; font-size: 12px; padding: 2px;">登録番号 : ${invoice.company.registrationNumber}</td></tr>` : ''}
           </table>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <!-- 企業ロゴと登録印の位置を入れ替えた -->
@@ -463,7 +467,8 @@ function App() {
       phone: '',
       email: '',
       logo: '',
-      stampImage: ''
+      stampImage: '',
+      registrationNumber: ''  // 追加：登録番号
     },
     client: {
       name: '',
@@ -1040,7 +1045,8 @@ ${invoice.company.name}`
       phone: '03-1234-5678',
       email: 'info@sample-company.co.jp',
       logo: '',
-      stampImage: ''
+      stampImage: '',
+      registrationNumber: 'T1234567890123'
     },
     client: {
       name: '取引先企業株式会社',
@@ -1378,6 +1384,15 @@ ${invoice.company.name}`
                   type="email" 
                   name="email" 
                   value={invoice.company.email} 
+                  onChange={handleCompanyChange} 
+                />
+              </div>
+              <div className="form-group">
+                <label>登録番号 <span className="optional-label">任意</span></label>
+                <input 
+                  type="text" 
+                  name="registrationNumber" 
+                  value={invoice.company.registrationNumber} 
                   onChange={handleCompanyChange} 
                 />
               </div>
