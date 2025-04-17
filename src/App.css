@@ -340,3 +340,19 @@ button:hover {
   content: '';
   margin-left: 10px;
 }
+
+.item-row .unit-price,
+.item-row .amount,
+.item-row .tax-rate {
+  width: 15%;
+}
+
+.item-row .remarks {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.item-row .remarks textarea {
+  height: 40px;
+  resize: vertical;
+}

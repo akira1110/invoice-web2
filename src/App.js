@@ -247,16 +247,25 @@ const invoiceTemplates = {
             <h1 style="color: white; margin: 0; font-size: 24px; text-align: center;">請求書</h1>
           </div>
           <div style="padding: 10px 0;">
-            <p style="margin: 0 0 5px 0; font-size: 12px;">〒 ${invoice.client.postalCode || '123-1234'} ${invoice.client.address || '東京都世田谷区○○○ 1-2-3'}</p>
-            <p style="margin: 0 0 5px 0; font-size: 14px; font-weight: bold;">${invoice.client.name || '株式会社サンプル　○○会社'}</p>
-            <p style="margin: 0 0 5px 0; font-size: 12px;">${invoice.client.departmentName || '営業部'}　担当者：${invoice.client.contactPerson || '○○　□□'}　様</p>
+            ${invoice.client.postalCode || invoice.client.address ? 
+            `<p style="margin: 0 0 5px 0; font-size: 12px;">
+              ${invoice.client.postalCode ? `〒 ${invoice.client.postalCode}` : ''} 
+              ${invoice.client.address || ''}
+            </p>` : ''}
+            <p style="margin: 0 0 5px 0; font-size: 14px; font-weight: bold;">${invoice.client.name || ''}</p>
+            <p style="margin: 0 0 5px 0; font-size: 12px;">
+              ${invoice.client.departmentName || ''}
+              ${invoice.client.contactPerson ? `担当者：${invoice.client.contactPerson}　様` : ''}
+            </p>
           </div>
         </div>
         <div style="width: 47%; text-align: right;">
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
             <tr>
-              <td style="text-align: right; font-size: 12px; padding: 2px;">No : ${invoice.invoiceNumber || '123456-123'}</td>
-              <td style="text-align: right; font-size: 12px; padding: 2px;">請求日 : ${invoice.issueDate || '2021/12/21'}</td>
+              ${invoice.invoiceNumber ? 
+              `<td style="text-align: right; font-size: 12px; padding: 2px;">No : ${invoice.invoiceNumber}</td>` : ''}
+              ${invoice.issueDate ? 
+              `<td style="text-align: right; font-size: 12px; padding: 2px;">請求日 : ${invoice.issueDate}</td>` : ''}
             </tr>
           </table>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -266,28 +275,37 @@ const invoiceTemplates = {
             </div>` : ''}
             <div${!invoice.templateSpecific.japanese_traditional.hasStamp ? ' style="width: 100%; text-align: center;"' : ''}>
               ${invoice.company.logo ? `<img src="${invoice.company.logo}" style="max-height: 60px; max-width: 200px;">` : 
-              `<div style="font-weight: bold; font-size: 20px;">${invoice.company.name || 'Japan サンプル（ロゴ）'}</div>`}
+              `<div style="font-weight: bold; font-size: 20px;">${invoice.company.name || ''}</div>`}
             </div>
           </div>
           <div style="text-align: left; margin-top: 10px;">
-            <p style="margin: 0 0 3px 0; font-size: 12px; font-weight: bold;">${invoice.company.name || '株式会社 日本サンプル'}</p>
-            <p style="margin: 0 0 3px 0; font-size: 12px;">〒 ${invoice.company.postalCode || ''} ${invoice.company.address || '東京都杉並区○○○ 1－2－3'}</p>
-            <p style="margin: 0 0 3px 0; font-size: 12px;">△△△ビル 1F 123</p>
-            <p style="margin: 0 0 3px 0; font-size: 12px;">
-              <span style="margin-right: 10px;">☎ ${invoice.company.phone || '03-1234-5678'}</span>
-              <span>✉ ${invoice.company.email || 'info@japansample.com'}</span>
-            </p>
+            <p style="margin: 0 0 3px 0; font-size: 12px; font-weight: bold;">${invoice.company.name || ''}</p>
+            ${invoice.company.postalCode || invoice.company.address ? 
+            `<p style="margin: 0 0 3px 0; font-size: 12px;">
+              ${invoice.company.postalCode ? `〒 ${invoice.company.postalCode}` : ''} 
+              ${invoice.company.address || ''}
+            </p>` : ''}
+            ${invoice.company.phone || invoice.company.email ? 
+            `<p style="margin: 0 0 3px 0; font-size: 12px;">
+              ${invoice.company.phone ? `<span style="margin-right: 10px;">☎ ${invoice.company.phone}</span>` : ''}
+              ${invoice.company.email ? `<span>✉ ${invoice.company.email}</span>` : ''}
+            </p>` : ''}
           </div>
-          <div style="border: 1px solid #000; padding: 5px; margin-top: 10px; text-align: left;">
+          ${invoice.bankInfo.bankName || invoice.bankInfo.branchName || invoice.bankInfo.accountType || invoice.bankInfo.accountNumber || invoice.bankInfo.accountName ? 
+          `<div style="border: 1px solid #000; padding: 5px; margin-top: 10px; text-align: left;">
             <table style="width: 100%; border-collapse: collapse;">
+              ${invoice.bankInfo.bankName || invoice.bankInfo.branchName ? `
               <tr>
-                <td style="font-size: 12px;">${invoice.bankInfo.bankName || '○○○○ 銀行'} ${invoice.bankInfo.branchName || '△△△ 支店'}</td>
+                <td style="font-size: 12px;">${invoice.bankInfo.bankName || ''} ${invoice.bankInfo.branchName || ''}</td>
               </tr>
+              ` : ''}
+              ${invoice.bankInfo.accountType || invoice.bankInfo.accountNumber || invoice.bankInfo.accountName ? `
               <tr>
-                <td style="font-size: 12px;">(普) ${invoice.bankInfo.accountNumber || '0123456'} ${invoice.bankInfo.accountName || 'カ)ﾆﾎﾝｻﾝﾌﾟﾙ'}</td>
+                <td style="font-size: 12px;">${invoice.bankInfo.accountType ? `(${invoice.bankInfo.accountType}) ` : ''}${invoice.bankInfo.accountNumber || ''} ${invoice.bankInfo.accountName || ''}</td>
               </tr>
+              ` : ''}
             </table>
-          </div>
+          </div>` : ''}
         </div>
       </div>
 
@@ -315,11 +333,11 @@ const invoiceTemplates = {
         <tbody>
           ${invoice.items.map((item, index) => `
             <tr style="border: 1px solid #000;">
-              <td style="padding: 5px; border: 1px solid #000; font-size: 12px;">${item.description}</td>
-              <td style="padding: 5px; border: 1px solid #000; text-align: right; font-size: 12px;">${parseFloat(item.quantity).toLocaleString()} ${index === 0 ? '個数' : index === 1 ? '台' : index === 2 ? '人' : index === 3 ? '個数' : 'Kg'}</td>
-              <td style="padding: 5px; border: 1px solid #000; text-align: right; font-size: 12px;">${parseFloat(item.unitPrice).toLocaleString()}</td>
-              <td style="padding: 5px; border: 1px solid #000; text-align: right; font-size: 12px;">${parseFloat(item.amount).toLocaleString()}</td>
-              <td style="padding: 5px; border: 1px solid #000; font-size: 12px;">${index === 1 ? '担当：○○' : ''}</td>
+              <td style="padding: 5px; border: 1px solid #000; font-size: 12px;">${item.description || ''}</td>
+              <td style="padding: 5px; border: 1px solid #000; text-align: right; font-size: 12px;">${parseFloat(item.quantity || 0).toLocaleString()}</td>
+              <td style="padding: 5px; border: 1px solid #000; text-align: right; font-size: 12px;">${parseFloat(item.unitPrice || 0).toLocaleString()}</td>
+              <td style="padding: 5px; border: 1px solid #000; text-align: right; font-size: 12px;">${parseFloat(item.amount || 0).toLocaleString()}</td>
+              <td style="padding: 5px; border: 1px solid #000; font-size: 12px;">${item.remarks || ''}</td>
             </tr>
           `).join('')}
           ${Array(Math.max(0, 15 - invoice.items.length)).fill().map(() => `
@@ -337,8 +355,7 @@ const invoiceTemplates = {
       <!-- 金額情報 -->
       <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
         <div style="width: 50%; font-size: 12px;">
-          <p style="margin: 0 0 5px 0;">支払期限：${invoice.dueDate || '2021/12/31'}</p>
-          <p style="margin: 0;">※お振込手数料は御社にてご負担願います</p>
+          ${invoice.dueDate ? `<p style="margin: 0 0 5px 0;">支払期限：${invoice.dueDate}</p>` : ''}
         </div>
         <table style="width: 45%; border-collapse: collapse;">
           <tr style="border: 1px solid #000;">
@@ -357,10 +374,12 @@ const invoiceTemplates = {
       </div>
 
       <!-- 備考欄 -->
+      ${invoice.notes ? `
       <div style="border: 1px solid #000; padding: 10px; min-height: 100px; margin-bottom: 20px;">
         <p style="margin: 0 0 5px 0; font-weight: bold;">備考欄：</p>
-        <p style="margin: 0;">${invoice.notes || ''}</p>
+        <p style="margin: 0;">${invoice.notes}</p>
       </div>
+      ` : ''}
     </div>
   `
 };
@@ -393,7 +412,7 @@ function App() {
       accountName: ''
     },
     items: [
-      { description: '', quantity: 1, unitPrice: 0, amount: 0, taxRate: 10 }
+      { description: '', quantity: 1, unitPrice: 0, amount: 0, taxRate: 10, remarks: '' }
     ],
     subtotal: 0,
     taxAmount: 0,
@@ -527,7 +546,7 @@ function App() {
   const addItem = () => {
     setInvoice({
       ...invoice,
-      items: [...invoice.items, { description: '', quantity: 1, unitPrice: 0, amount: 0, taxRate: 10 }]
+      items: [...invoice.items, { description: '', quantity: 1, unitPrice: 0, amount: 0, taxRate: 10, remarks: '' }]
     });
   };
 
@@ -592,21 +611,6 @@ function App() {
       if (value === 'japanese_traditional') {
         // 日本語テンプレート用のデフォルト値を設定
         updatedInvoice.notes = 'お振込手数料は御社にてご負担願います。';
-        
-        // もし担当者や部署が空なら、デフォルト値を設定
-        if (!updatedInvoice.client.contactPerson) {
-          updatedInvoice.client = {
-            ...updatedInvoice.client,
-            contactPerson: '○○　□□'
-          };
-        }
-        
-        if (!updatedInvoice.client.departmentName) {
-          updatedInvoice.client = {
-            ...updatedInvoice.client,
-            departmentName: '営業部'
-          };
-        }
       }
       
       setInvoice(updatedInvoice);
@@ -1133,6 +1137,14 @@ ${invoice.company.name}`
                       value={item.amount} 
                       readOnly 
                     />
+                  </div>
+                  <div className="form-group remarks">
+                    <label>備考</label>
+                    <textarea 
+                      name="remarks" 
+                      value={item.remarks} 
+                      onChange={(e) => handleItemChange(index, e)} 
+                    ></textarea>
                   </div>
                   {index > 0 && (
                     <button 
