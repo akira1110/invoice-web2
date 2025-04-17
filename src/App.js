@@ -47,11 +47,12 @@ const invoiceTemplates = {
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 11px;">
         <thead>
           <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
-            <th style="text-align: left; padding: 5px; width: 45%;">品目</th>
+            <th style="text-align: left; padding: 5px; width: 35%;">品目</th>
             <th style="text-align: right; padding: 5px; width: 10%;">数量</th>
             <th style="text-align: right; padding: 5px; width: 15%;">単価</th>
             <th style="text-align: right; padding: 5px; width: 10%;">税率</th>
-            <th style="text-align: right; padding: 5px; width: 20%;">金額</th>
+            <th style="text-align: right; padding: 5px; width: 15%;">金額</th>
+            <th style="text-align: left; padding: 5px; width: 15%;">備考</th>
           </tr>
         </thead>
         <tbody>
@@ -62,6 +63,7 @@ const invoiceTemplates = {
               <td style="text-align: right; padding: 5px; font-size: 11px;">¥${parseFloat(item.unitPrice).toLocaleString()}</td>
               <td style="text-align: right; padding: 5px; font-size: 11px;">${item.taxRate}%</td>
               <td style="text-align: right; padding: 5px; font-size: 11px;">¥${parseFloat(item.amount).toLocaleString()}</td>
+              <td style="padding: 5px; font-size: 11px;">${item.remarks || ''}</td>
             </tr>
           `).join('')}
           ${Array(Math.max(0, 10 - invoice.items.length)).fill().map(() => `
@@ -71,6 +73,7 @@ const invoiceTemplates = {
               <td style="text-align: right; padding: 5px;"></td>
               <td style="text-align: right; padding: 5px;"></td>
               <td style="text-align: right; padding: 5px;"></td>
+              <td style="padding: 5px;"></td>
             </tr>
           `).join('')}
         </tbody>
@@ -170,11 +173,12 @@ const invoiceTemplates = {
         <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
           <thead>
             <tr style="background-color: #3498db; color: white;">
-              <th style="text-align: left; padding: 5px; border-radius: 3px 0 0 0; width: 45%;">品目</th>
+              <th style="text-align: left; padding: 5px; border-radius: 3px 0 0 0; width: 35%;">品目</th>
               <th style="text-align: right; padding: 5px; width: 10%;">数量</th>
               <th style="text-align: right; padding: 5px; width: 15%;">単価</th>
               <th style="text-align: right; padding: 5px; width: 10%;">税率</th>
-              <th style="text-align: right; padding: 5px; border-radius: 0 3px 0 0; width: 20%;">金額</th>
+              <th style="text-align: right; padding: 5px; width: 15%;">金額</th>
+              <th style="text-align: left; padding: 5px; border-radius: 0 3px 0 0; width: 15%;">備考</th>
             </tr>
           </thead>
           <tbody>
@@ -185,6 +189,7 @@ const invoiceTemplates = {
                 <td style="text-align: right; padding: 5px; font-size: 11px;">¥${parseFloat(item.unitPrice).toLocaleString()}</td>
                 <td style="text-align: right; padding: 5px; font-size: 11px;">${item.taxRate}%</td>
                 <td style="text-align: right; padding: 5px; font-size: 11px;">¥${parseFloat(item.amount).toLocaleString()}</td>
+                <td style="padding: 5px; font-size: 11px;">${item.remarks || ''}</td>
               </tr>
             `).join('')}
             ${Array(Math.max(0, 10 - invoice.items.length)).fill().map(() => `
@@ -194,6 +199,7 @@ const invoiceTemplates = {
                 <td style="text-align: right; padding: 5px;"></td>
                 <td style="text-align: right; padding: 5px;"></td>
                 <td style="text-align: right; padding: 5px;"></td>
+                <td style="padding: 5px;"></td>
               </tr>
             `).join('')}
           </tbody>
