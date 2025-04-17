@@ -203,34 +203,65 @@ button:hover {
 }
 
 @media (max-width: 768px) {
+  body {
+    padding: 5px;
+  }
+  
+  .container {
+    padding: 10px;
+    width: 100%;
+    max-width: 100%;
+  }
+  
   .form-group {
     min-width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .form-row {
+    margin-left: -5px;
+    margin-right: -5px;
+  }
+  
+  .form-group.half {
+    padding: 0 5px;
   }
   
   .item-row {
     flex-wrap: wrap;
+    margin-bottom: 5px;
+    padding: 5px;
   }
   
   .item-controls {
     flex-direction: row;
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
   }
   
   .description {
     flex: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
   }
   
   .quantity, .unit-price, .tax-rate, .amount {
     flex: 1;
-    min-width: 30%;
+    min-width: 23%;
+    padding: 0 2px;
   }
   
   .remove-item {
     flex: 100%;
     margin-left: 0;
-    margin-top: 10px;
+    margin-top: 5px;
+  }
+  
+  input, select, textarea {
+    padding: 6px;
+  }
+  
+  h1, h2, h3 {
+    margin-bottom: 10px;
   }
 }
 
