@@ -1292,9 +1292,9 @@ ${invoice.company.name}`
               value={invoice.template}
               onChange={handleInputChange}
             >
-              <option value="standard">標準</option>
+              <option value="standard">シンプル</option>
               <option value="modern">モダン</option>
-              <option value="japanese_traditional">伝統的な日本語請求書</option>
+              <option value="japanese_traditional">スタンダード</option>
             </select>
           </div>
           
