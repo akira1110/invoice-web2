@@ -1648,13 +1648,23 @@ ${invoice.company.name}`
           
           <div className="form-group">
             <label>メール送信先 <span className="optional-label">任意</span></label>
-            <input
-              type="email"
-              name="sendToEmail"
-              value={invoice.sendToEmail}
-              onChange={handleInputChange}
-              placeholder="example@example.com"
-            />
+            <div className="email-input-group">
+              <input
+                type="email"
+                name="sendToEmail"
+                value={invoice.sendToEmail}
+                onChange={handleInputChange}
+                placeholder="example@example.com"
+              />
+              <button 
+                type="button" 
+                className="copy-company-email" 
+                onClick={() => setInvoice({...invoice, sendToEmail: invoice.company.email})}
+              >
+                請求元と同じアドレスを反映
+              </button>
+            </div>
+            <p className="email-notice">※ エラーにより送信されないことがあります。転送と確認用に、ご自身のメールアドレスをご記入いただくことを推奨します。</p>
           </div>
           
           <div className="actions">
