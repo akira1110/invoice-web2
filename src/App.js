@@ -1194,25 +1194,23 @@ ${invoice.company.name}`
                   </div>
                 </div>
               )}
-              <div className="form-row">
-                <div className="form-group">
-                  <label>電話番号 <span className="optional-label">任意</span></label>
-                  <input 
-                    type="text" 
-                    name="phone" 
-                    value={invoice.company.phone} 
-                    onChange={handleCompanyChange} 
-                  />
-                </div>
-                <div className="form-group">
-                  <label>メール <span className="optional-label">任意</span></label>
-                  <input 
-                    type="email" 
-                    name="email" 
-                    value={invoice.company.email} 
-                    onChange={handleCompanyChange} 
-                  />
-                </div>
+              <div className="form-group">
+                <label>電話番号 <span className="optional-label">任意</span></label>
+                <input 
+                  type="text" 
+                  name="phone" 
+                  value={invoice.company.phone} 
+                  onChange={handleCompanyChange} 
+                />
+              </div>
+              <div className="form-group">
+                <label>メール <span className="optional-label">任意</span></label>
+                <input 
+                  type="email" 
+                  name="email" 
+                  value={invoice.company.email} 
+                  onChange={handleCompanyChange} 
+                />
               </div>
             </div>
           )}
