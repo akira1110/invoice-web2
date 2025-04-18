@@ -1188,7 +1188,7 @@ ${invoice.company.name}`
   return (
     <div className="App">
       <div className="container">
-        <h1>請求書作成ツール</h1>
+        <h1>請求書 作成ツール</h1>
         
         <div className="invoice-form">
           <div className="template-selection">
